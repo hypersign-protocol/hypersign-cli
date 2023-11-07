@@ -2,7 +2,7 @@ import {Args, Command, Flags, ux} from '@oclif/core'
 import  dockerComponseTemplate from './docker-compose-template.json'
 const YAMLFormatter = require('json-to-pretty-yaml');
 import fs from 'fs';
-
+import path from 'path'
 
 export default class Setup extends Command {
   static description = 'Hypersign Entity Node Setup Cli'
@@ -106,7 +106,9 @@ export default class Setup extends Command {
     }
 
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
-    await fs.writeFileSync('docker-compose.yml', dockerCompose)
+    const dockerComposeFilePath = path.join(__dirname,'docker-compose.yml')
+    this.log(dockerComposeFilePath)
+    await fs.writeFileSync(dockerComposeFilePath, dockerCompose)
     this.log('Configuration setup successfully')
   }
 }

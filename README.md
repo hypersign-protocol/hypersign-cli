@@ -35,5 +35,3 @@ studio-cli start --p 3001
 ```
 
 > This will run the issuer node at port 3001 in form of docker
-
-

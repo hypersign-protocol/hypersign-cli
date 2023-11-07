@@ -61,7 +61,7 @@
   },
   "repository": "Vishwas1/studio-cli",
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b",
+    "build": "shx rm -rf dist && tsc -b && cp -R nginx dist/commands",
     "lint": "eslint . --ext .ts",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "yarn lint",

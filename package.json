@@ -1,0 +1,78 @@
+{
+  "author": "vishwas1 @Vishwas1",
+  "bin": {
+    "studio-cli": "./bin/run.js"
+  },
+  "dependencies": {
+    "@oclif/core": "^3",
+    "@oclif/plugin-help": "^5",
+    "@oclif/plugin-not-found": "^3.0.3",
+    "@oclif/plugin-plugins": "^4",
+    "@types/inquirer": "^9.0.6",
+    "inquirer": "^9.2.11",
+    "js-yaml": "^4.1.0",
+    "json-to-pretty-yaml": "^1.2.2"
+  },
+  "description": "oclif example Hello World CLI",
+  "devDependencies": {
+    "@oclif/prettier-config": "^0.2.1",
+    "@oclif/test": "^3",
+    "@types/chai": "^4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^18",
+    "chai": "^4",
+    "eslint": "^8.53.0",
+    "eslint-config-oclif": "^5",
+    "eslint-config-oclif-typescript": "^3",
+    "eslint-config-prettier": "^9.0.0",
+    "mocha": "^10",
+    "oclif": "^3.17.2",
+    "shx": "^0.3.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "/bin",
+    "/dist",
+    "/oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/Vishwas1/studio-cli",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "name": "studio-cli",
+  "oclif": {
+    "bin": "studio-cli",
+    "dirname": "studio-cli",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-plugins",
+      "@oclif/plugin-not-found"
+    ],
+    "topicSeparator": " ",
+    "topics": {
+      "hello": {
+        "description": "Say hello to the world and others"
+      }
+    }
+  },
+  "repository": "Vishwas1/studio-cli",
+  "scripts": {
+    "build": "shx rm -rf dist && tsc -b",
+    "lint": "eslint . --ext .ts",
+    "postpack": "shx rm -f oclif.manifest.json",
+    "posttest": "yarn lint",
+    "prepack": "yarn build && oclif manifest && oclif readme",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif readme && git add README.md"
+  },
+  "version": "0.0.0",
+  "bugs": "https://github.com/Vishwas1/studio-cli/issues",
+  "keywords": [
+    "oclif"
+  ],
+  "types": "dist/index.d.ts"
+}

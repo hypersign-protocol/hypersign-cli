@@ -14,7 +14,7 @@
       },
       "edv.entity.id": {
         "container_name": "edv.entity.id",
-        "build": "/Users/hermit/code/hm/hs/hypersign-data-vault-service",
+        "image": "ghcr.io/hypersign-protocol/hypersign-data-vault-service:latest",
         "environment": {
           "PORT": 3000,
           "HOST": "edv.entity.id:3000",
@@ -29,7 +29,7 @@
       },
       "api.entity.id": {
         "container_name": "api.entity.id",
-        "build": "/Users/hermit/code/hm/hs/studio-api",
+        "image": "ghcr.io/hypersign-protocol/studio-api:latest",
         "environment": {
           "PORT": 3001,
           "ENTITY_API_SERVICE_BASE_URL": "http://localhost:8080/",

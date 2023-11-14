@@ -4,6 +4,8 @@ const YAMLFormatter = require('json-to-pretty-yaml');
 import fs from 'fs';
 import path from 'path'
 
+
+
 export default class Setup extends Command {
   static description = 'Hypersign Entity Node Setup Cli'
 
@@ -18,7 +20,7 @@ export default class Setup extends Command {
   }
 
   public async run(): Promise<void> {
-    
+
     const { default: inquirer } = await import("inquirer")
     // just prompt for input
     
@@ -52,8 +54,8 @@ export default class Setup extends Command {
 
     if(isBlockchainNode === 'n' ){
       // skip hid-node container..
-      configParams.hidNetREST = await ux.prompt('Provide HID Node REST endpoint:')
-      configParams.hidNetRPC = await ux.prompt('Provide HID Node RPC endpoint:')
+      configParams.hidNetREST = await ux.prompt('Provide HID Node REST endpoint')
+      configParams.hidNetRPC = await ux.prompt('Provide HID Node RPC endpoint')
       configParams.setupBlockchainNode = false
     } else {
       /// TODO: Ask params to setup hypersign node container
@@ -75,7 +77,7 @@ export default class Setup extends Command {
 
     if(isEDV === 'n' ){
       // skip edv service container..
-      configParams.edvUrl = await ux.prompt('Provide Data Vault Service Endpoint:')
+      configParams.edvUrl = await ux.prompt('Provide Data Vault Service Endpoint')
       configParams.isEDV = false
       // delete dockerComponseTemplate.services['edv.entity.id']
     } else {
@@ -84,25 +86,25 @@ export default class Setup extends Command {
       ux.action.stop() 
     }
 
-    configParams.mnemonic = await ux.prompt('Enter your mnemonic to control master edv:')
-    configParams.superAdminUsername = await ux.prompt('Enter super admin username:')
-    configParams.superAdminPassword = await ux.prompt('Enter super admin password?', {type: 'hide'})
+    configParams.mnemonic = await ux.prompt('Enter your mnemonic to control master edv')
+    configParams.superAdminUsername = await ux.prompt('Enter super admin username')
+    configParams.superAdminPassword = await ux.prompt('Enter super admin password', {type: 'hide'})
     
-    configParams.jwtSecret = flags.jwtSecret ? flags.jwtSecret: dockerComponseTemplate.services['api.entity.id'].environment.JWT_SECRET;
-    configParams.sessionSecret = flags.sessionSecret ? flags.sessionSecret: dockerComponseTemplate.services['api.entity.id'].environment.SESSION_SECRET_KEY;
+    configParams.jwtSecret = flags.jwtSecret ? flags.jwtSecret: dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET;
+    configParams.sessionSecret = flags.sessionSecret ? flags.sessionSecret: dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY;
     
-    dockerComponseTemplate.services['api.entity.id'].environment.JWT_SECRET = configParams.jwtSecret
-    dockerComponseTemplate.services['api.entity.id'].environment.MNEMONIC = configParams.mnemonic
+    dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET = configParams.jwtSecret
+    dockerComponseTemplate.services['ssi-api'].environment.MNEMONIC = configParams.mnemonic
     if(!configParams.setupBlockchainNode){
-      dockerComponseTemplate.services['api.entity.id'].environment.HID_NETWORK_API = configParams.hidNetREST
-      dockerComponseTemplate.services['api.entity.id'].environment.HID_NETWORK_RPC = configParams.hidNetRPC      
+      dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_API = configParams.hidNetREST
+      dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_RPC = configParams.hidNetRPC      
     }
 
-    dockerComponseTemplate.services['api.entity.id'].environment.SESSION_SECRET_KEY = configParams.sessionSecret
-    dockerComponseTemplate.services['api.entity.id'].environment.SUPER_ADMIN_PASSWORD = configParams.superAdminPassword
-    dockerComponseTemplate.services['api.entity.id'].environment.SUPER_ADMIN_USERNAME = configParams.superAdminUsername
+    dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY = configParams.sessionSecret
+    dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_PASSWORD = configParams.superAdminPassword
+    dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_USERNAME = configParams.superAdminUsername
     if(!configParams.isEDV) {
-      dockerComponseTemplate.services['api.entity.id'].environment.EDV_BASE_URL = configParams.edvUrl
+      dockerComponseTemplate.services['ssi-api'].environment.EDV_BASE_URL = configParams.edvUrl
     }
 
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)

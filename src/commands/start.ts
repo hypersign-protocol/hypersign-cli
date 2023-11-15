@@ -10,7 +10,7 @@ const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
 
 type Task = {title: string; task: Function}
 export default class Start extends Command {
-  static description = 'describe the command here'
+  static description = 'Start Hypersign issuer node infrastructure'
   static examples = ['<%= config.bin %> <%= command.id %>']
 
   checkIfProcessInstalled(processName: string){

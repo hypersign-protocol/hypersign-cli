@@ -11,9 +11,9 @@ const execa = require('execa')
 const Listr = require('listr')
 
 type Task = {title: string; task: Function}
-
+const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
 export default class Setup extends Command {
-  static description = 'Hypersign Entity Node Setup Cli'
+  static description = 'Setup configurations for Hypersign issuer node infrastructure'
 
   configParams = {
     database: {
@@ -155,10 +155,10 @@ export default class Setup extends Command {
     
   }
 
-  getTask(taskTitle: string, task: Function, flag?: any, context?: Setup): Task {
+  getTask(taskTitle: string, task: Function, flag?: any): Task {
     return {
       title: taskTitle,
-      task: async () => await task(flag, context),
+      task: () => task(flag),
     }
   }
 
@@ -168,6 +168,15 @@ export default class Setup extends Command {
         resolve('true')
       }, 1500)
     })
+  }
+
+  dockerComposePull(serviceName: string){
+    return execa('docker-compose', [
+      '-f',
+      dockerComposeFilePath,
+      'pull',
+      serviceName,
+    ])
   }
 
   public async run(): Promise<void> {    
@@ -280,7 +289,6 @@ export default class Setup extends Command {
       //   this.configParams.edv.isEdvSetup = false
       // } 
 
-      tasks.push(this.getTask(`Hypersign Encrypted Data Vault Configuration`, this.delayedTask))
     }
 
     { // SSI API configuration
@@ -364,10 +372,13 @@ export default class Setup extends Command {
         }
       }
 
-      tasks.push(this.getTask(`Hypersign Mongo Db Service Configuration`, this.delayedTask))
-      tasks.push(this.getTask(`Hypersign SSI API Service Configuration`, this.delayedTask))
-      tasks.push(this.getTask(`Hypersign Studio Dashboard Service Configuration`, this.delayedTask))
-      tasks.push(this.getTask(`Hypersign Studio Dashboard UI Configuration`, this.delayedTask))
+      
+      tasks.push(this.getTask(`Hypersign Mongo Db Service Configuration`, this.dockerComposePull, 'mongo'))
+      tasks.push(this.getTask(`Hypersign Encrypted Data Vault Configuration`, this.dockerComposePull, 'edv'))
+      tasks.push(this.getTask(`Hypersign SSI API Service Configuration`, this.dockerComposePull, 'ssi-api'))
+      tasks.push(this.getTask(`Hypersign SSI API Proxy Service Configuration`, this.dockerComposePull, 'ssi-api-proxy'))
+      tasks.push(this.getTask(`Hypersign Studio Dashboard Service Configuration`, this.dockerComposePull, 'studio'))
+      tasks.push(this.getTask(`Hypersign Studio Dashboard UI Configuration`, this.dockerComposePull, 'studio-ui'))
     }
 
     { //// edv configuration

@@ -16,7 +16,7 @@
     "json-to-pretty-yaml": "^1.2.2",
     "listr": "^0.14.3"
   },
-  "description": "oclif example Hello World CLI",
+  "description": "Hypersign Issue Node Infrastructure CLI",
   "devDependencies": {
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^3",

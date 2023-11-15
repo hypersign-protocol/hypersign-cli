@@ -4,6 +4,7 @@
     "studio-cli": "./bin/run.js"
   },
   "dependencies": {
+    "@cosmjs/proto-signing": "^0.31.3",
     "@oclif/core": "^3",
     "@oclif/plugin-help": "^5",
     "@oclif/plugin-not-found": "^3.0.3",

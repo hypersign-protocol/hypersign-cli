@@ -4,6 +4,8 @@ const YAMLFormatter = require('json-to-pretty-yaml');
 import fs from 'fs';
 import path from 'path'
 const { DirectSecp256k1HdWallet } = require('@cosmjs/proto-signing');
+import { randomUUID } from 'crypto';
+
 
 const execa = require('execa')
 const Listr = require('listr')
@@ -323,24 +325,43 @@ export default class Setup extends Command {
       
       /// we will use this feature in the next version
       this.configParams.secrets.superAdminUsername = 'root' //await ux.prompt('Enter super admin username')
-      this.configParams.secrets.superAdminPassword = 'root' //await ux.prompt('Enter super admin password', {type: 'hide'})
+      this.configParams.secrets.superAdminPassword = randomUUID() //await ux.prompt('Enter super admin password', {type: 'hide'})
       
-      this.configParams.secrets.jwtSecret = flags.jwtSecret ? flags.jwtSecret: dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET;
-      this.configParams.secrets.sessionSecret = flags.sessionSecret ? flags.sessionSecret: dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY;
+      this.configParams.secrets.jwtSecret = randomUUID() //flags.jwtSecret ? flags.jwtSecret: dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET;
+      this.configParams.secrets.sessionSecret = randomUUID() //flags.sessionSecret ? flags.sessionSecret: dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY;
       
-      dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
-      dockerComponseTemplate.services['ssi-api'].environment.MNEMONIC = this.configParams.ssi.mnemonic
-      dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
-      dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
-      dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
+      {
+        dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
+        dockerComponseTemplate.services['ssi-api'].environment.MNEMONIC = this.configParams.ssi.mnemonic
+        dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
+        dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
+        dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
 
-      if(!this.configParams.hidNode.isHidNodeSetup){
-        dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
-        dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+        if(!this.configParams.hidNode.isHidNodeSetup){
+          dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
+          dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+        }
+    
+        if(!this.configParams.edv.isEdvSetup) {
+          dockerComponseTemplate.services['ssi-api'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
+        }
       }
-  
-      if(!this.configParams.edv.isEdvSetup) {
-        dockerComponseTemplate.services['ssi-api'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
+
+      {
+        dockerComponseTemplate.services['studio'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
+        dockerComponseTemplate.services['studio'].environment.MNEMONIC = this.configParams.ssi.mnemonic
+        dockerComponseTemplate.services['studio'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
+        dockerComponseTemplate.services['studio'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
+        dockerComponseTemplate.services['studio'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
+
+        if(!this.configParams.hidNode.isHidNodeSetup){
+          dockerComponseTemplate.services['studio'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
+          dockerComponseTemplate.services['studio'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+        }
+    
+        if(!this.configParams.edv.isEdvSetup) {
+          dockerComponseTemplate.services['studio'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
+        }
       }
 
       tasks.push(this.getTask(`Hypersign Mongo Db Service Configuration`, this.delayedTask))

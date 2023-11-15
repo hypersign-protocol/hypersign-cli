@@ -179,8 +179,20 @@ export default class Setup extends Command {
     ])
   }
 
+  dockerComposeBuild(serviceName: string){
+    return execa('docker-compose', [
+      '-f',
+      dockerComposeFilePath,
+      'build',
+      serviceName,
+    ])
+  }
+
   public async run(): Promise<void> {    
     { 
+
+      
+
       // was trying with listr, but did not work..
       // let allTasks;
       // const that = this;
@@ -373,12 +385,14 @@ export default class Setup extends Command {
       }
 
       
+
+     
       tasks.push(this.getTask(`Hypersign Mongo Db Service Configuration`, this.dockerComposePull, 'mongo'))
       tasks.push(this.getTask(`Hypersign Encrypted Data Vault Configuration`, this.dockerComposePull, 'edv'))
       tasks.push(this.getTask(`Hypersign SSI API Service Configuration`, this.dockerComposePull, 'ssi-api'))
       tasks.push(this.getTask(`Hypersign SSI API Proxy Service Configuration`, this.dockerComposePull, 'ssi-api-proxy'))
       tasks.push(this.getTask(`Hypersign Studio Dashboard Service Configuration`, this.dockerComposePull, 'studio'))
-      tasks.push(this.getTask(`Hypersign Studio Dashboard UI Configuration`, this.dockerComposePull, 'studio-ui'))
+      tasks.push(this.getTask(`Hypersign Studio Dashboard UI Configuration`, this.dockerComposeBuild, 'studio-ui'))
     }
 
     { //// edv configuration
@@ -402,7 +416,7 @@ export default class Setup extends Command {
       // } 
     }
 
-     
+    
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
     const dockerComposeFilePath = path.join(__dirname,'docker-compose.yml')
     //this.log(dockerCompose)
@@ -411,7 +425,7 @@ export default class Setup extends Command {
     { 
 
       // These are fake messages ...
-      const dockerTasks = new Listr(tasks, {concurrent: false})
+      const dockerTasks = new Listr(tasks, {concurrent: true})
       // const allTasks = new Listr([
       //   this.getTask(`Setting configurations`, () => { return dockerTasks  }),
       // ],  {concurrent: false},);

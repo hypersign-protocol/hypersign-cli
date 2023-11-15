@@ -1,133 +1,131 @@
 {
-  "version": "3.9",
-  "services": {
-      "mongo": {
-          "container_name": "mongo",
-          "image": "mongo:latest",
-          "ports": [
-              "27017:27017"
-          ],
-          "restart": "always",
-          "volumes": [
-              "mongo:/data/db"
-          ]
-      },
-      "edv": {
-          "container_name": "edv",
-          "build": "/Users/hermit/code/hm/hs/hypersign-data-vault-service",
-          "environment": {
-              "PORT": 3000,
-              "HOST": "edv:3000",
-              "SSL": false,
-              "ABSOLUTE_URL": "edv:3000",
-              "DATA_VAULT": "./.encData",
-              "DB_URL": "mongodb://mongo:27017"
-          },
-          "depends_on": [
-              "mongo"
-          ]
-      },
-      "ssi-api": {
-          "container_name": "ssi-api",
-          "build": "/Users/hermit/code/hm/hs/studio-api",
-          "restart": "on-failure:10",
-          "environment": {
-              "PORT": 3001,
-              "ENTITY_API_SERVICE_BASE_URL": "http://localhost:8080/",
-              "BASE_DB_PATH": "mongodb://mongo:27017",
-              "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
-              "HID_NETWORK_API": "https://api.jagrat.hypersign.id/",
-              "HID_NETWORK_NAMESPACE": "testnet",
-              "EDV_BASE_URL": "http://edv:3000/",
-              "EDV_CONFIG_DIR": ".api-edv-config",
-              "EDV_DID_FILE_PATH": ".api-edv-config/edv-did.json",
-              "EDV_KEY_FILE_PATH": ".api-edv-config/edv-keys.json",
-              "MNEMONIC": "parade erase firm goose old elegant sausage sweet stuff view goddess total museum hidden worry usual rug foster uncover cradle govern swing muscle unable",
-              "JWT_SECRET": "43bf9ba55e72565c35a2cd5ac52792ca965cb806be2027c5d83bd11ab826aaf250c8bcedc851cf54b059fbe800daeb02f801c395f306bc42a6f28be15b94e0ed",
-              "WHITELISTED_CORS": "[\"http://localhost:9001\",\"https://entity.hypersign.id\",\"http://localhost:3001\",\"https://api.entity.hypersign.id\"]",
-              "STUDIO_SERVER_JWT_SECRET": "caXHr6Xhz3teM2S75HmgNzjgpp7EHnrFyga6jWgyjpgSvqKCv1",
-              "SUPER_ADMIN_USERNAME": "root",
-              "SUPER_ADMIN_PASSWORD": "root",
-              "SESSION_SECRET_KEY": "43bf9ba55e72565d"
-          },
-          "depends_on": [
-              "mongo",
-              "edv"
-          ]
-      },
-      "ssi-api-proxy": {
-          "container_name": "ssi-api-proxy",
-          "image": "nginx:latest",
-          "ports": [
-              "8080:8080"
-          ],
-          "depends_on": [
-              "ssi-api"
-          ],
-          "volumes": [
-              "./nginx/nginx.conf:/etc/nginx/nginx.conf"
-          ]
-      },
-      "studio": {
-          "container_name": "studio",
-          "build": "/Users/hermit/code/hm/hs/studio-server-new",
-          "ports": [
-              "3002:3002"
-          ],
-          "restart": "on-failure:10",
-          "environment": {
-              "PORT": 3002,
-              "DATABASE_CONNECTION_PATH": "mongodb://mongo:27017/api?retryWrites=true&w=majority",
-              "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
-              "HID_NETWORK_API": "https://api.jagrat.hypersign.id/",
-              "HID_NETWORK_NAMESPACE": "testnet",
-              "EDV_BASE_URL": "http://edv:3000/",
-              "EDV_CONFIG_DIR": ".api-edv-config",
-              "MNEMONIC": "parade erase firm goose old elegant sausage sweet stuff view goddess total museum hidden worry usual rug foster uncover cradle govern swing muscle unable",
-              "WHITELISTED_CORS": "[\"http://localhost:9001\", \"https://wallet-jagrat.hypersign.id\"]",
-              "JWT_SECRET": "43bf9ba55e72565c35a2cd5ac52792ca965cb806be2027c5d83bd11ab826aaf250c8bcedc851cf54b059fbe800daeb02f801c395f306bc42a6f28be15b94e0ed",
-              "VAULT_PREFIX": "hs:studio-api:",
-              "SUPER_ADMIN_USERNAME": "varsha",
-              "SUPER_ADMIN_PASSWORD": "Var123@",
-              "SESSION_SECRET_KEY": "43bf9ba55e72565d",
-              "ENTITY_API_SERVICE_BASE_URL": "http://localhost:8080"
-          },
-          "depends_on": [
-              "mongo",
-              "edv"
-          ]
-      },
-      "studio-ui": {
-          "container_name": "studio-ui",
-          "build": {
-              "context": "/Users/hermit/code/hm/hs/studio-frontend",
-              "dockerfile": "Dockerfile",
-              "args": [
-                  "VUE_APP_TITLE=Entity Studio 3",
-                  "VUE_APP_DESC=A portal to issue and verify credentials on Hypersign Identity network!",
-                  "VUE_APP_VERSION=v1.0",
-                  "VUE_APP_STUDIO_SERVER_BASE_URL=http://localhost:3002/",
-                  "VUE_APP_STUDIO_SERVER_BASE_WS=ws://localhost:3002/",
-                  "VUE_APP_NODE_SERVER_BASE_URL=https://rpc.jagrat.hypersign.id/",
-                  "VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.jagrat.hypersign.id/",
-                  "VUE_APP_SCHEMA_GET_EP_REST=hypersign-protocol/hidnode/ssi/schema/",
-                  "VUE_APP_ACCPCT_CRED_EP=api/v1/credential/send",
-                  "VUE_APP_EXPLORER_BASE_URL=https://explorer.hypersign.id/",
-                  "VUE_APP_STUDIO_SERVER_SAVE_SCHEMA=api/v1/schema",
-                  "VUE_APP_SCHEMA_LIST_EP=api/v1/schema",
-                  "VUE_APP_STUDIO_SERVER_CRED_LIST_EP=api/v1/credential/org",
-                  "VUE_APP_STUDIO_SERVER_CRED_ISSUE_EP=api/v1/credential",
-                  "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id",
-                  "VUE_APP_PRESENTATION_TEMPLATE_EP=api/v1/presentation/template",
-                  "VUE_APP_SSE=http://localhost:9000/"
-              ]
-          },
-          "ports": [
-              "9001:80"
-          ]
-      }
-  },
-  "volumes": {
-      "mongo": {}
-  }
+    "version": "3.9",
+    "services": {
+        "mongo": {
+            "container_name": "mongo",
+            "image": "mongo:latest",
+            "ports": [
+                "27017:27017"
+            ],
+            "restart": "always",
+            "volumes": [
+                "mongo:/data/db"
+            ]
+        },
+        "edv": {
+            "container_name": "edv",
+            "image": "ghcr.io/hypersign-protocol/hypersign-data-vault-service:latest",
+            "environment": {
+                "PORT": 3000,
+                "HOST": "edv:3000",
+                "SSL": false,
+                "ABSOLUTE_URL": "edv:3000",
+                "DATA_VAULT": "./.encData",
+                "DB_URL": "mongodb://mongo:27017"
+            },
+            "depends_on": [
+                "mongo"
+            ]
+        },
+        "ssi-api": {
+            "container_name": "ssi-api",
+            "image": "ghcr.io/hypersign-protocol/studio-api:latest",
+            "environment": {
+                "PORT": 3001,
+                "ENTITY_API_SERVICE_BASE_URL": "http://localhost:8080/",
+                "BASE_DB_PATH": "mongodb://mongo:27017",
+                "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
+                "HID_NETWORK_API": "https://api.jagrat.hypersign.id/",
+                "HID_NETWORK_NAMESPACE": "testnet",
+                "EDV_BASE_URL": "http://edv:3000/",
+                "EDV_CONFIG_DIR": ".api-edv-config",
+                "EDV_DID_FILE_PATH": ".api-edv-config/edv-did.json",
+                "EDV_KEY_FILE_PATH": ".api-edv-config/edv-keys.json",
+                "MNEMONIC": "",
+                "JWT_SECRET": "",
+                "WHITELISTED_CORS": "[\"http://localhost:9001\",\"https://entity.hypersign.id\",\"http://localhost:3001\",\"https://api.entity.hypersign.id\"]",
+                "STUDIO_SERVER_JWT_SECRET": "caXHr6Xhz3teM2S75HmgNzjgpp7EHnrFyga6jWgyjpgSvqKCv1",
+                "SUPER_ADMIN_USERNAME": "root",
+                "SUPER_ADMIN_PASSWORD": "root",
+                "SESSION_SECRET_KEY": ""
+            },
+            "depends_on": [
+                "mongo",
+                "edv"
+            ]
+        },
+        "ssi-api-proxy": {
+            "container_name": "ssi-api-proxy",
+            "image": "nginx:latest",
+            "ports": [
+                "8080:8080"
+            ],
+            "depends_on": [
+                "ssi-api"
+            ],
+            "volumes": [
+                "./nginx/nginx.conf:/etc/nginx/nginx.conf"
+            ]
+        },
+        "studio": {
+            "container_name": "studio",
+            "image": "ghcr.io/hypersign-protocol/studio-server-new:latest",
+            "ports": [
+                "3002:3002"
+            ],
+            "environment": {
+                "PORT": 3002,
+                "DATABASE_CONNECTION_PATH": "mongodb://mongo:27017/api?retryWrites=true&w=majority",
+                "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
+                "HID_NETWORK_API": "https://api.jagrat.hypersign.id/",
+                "HID_NETWORK_NAMESPACE": "testnet",
+                "EDV_BASE_URL": "http://edv:3000/",
+                "EDV_CONFIG_DIR": ".api-edv-config",
+                "MNEMONIC": "parade erase firm goose old elegant sausage sweet stuff view goddess total museum hidden worry usual rug foster uncover cradle govern swing muscle unable",
+                "WHITELISTED_CORS": "[\"http://localhost:9001\", \"https://wallet-jagrat.hypersign.id\"]",
+                "JWT_SECRET": "",
+                "VAULT_PREFIX": "hs:studio-api:",
+                "SUPER_ADMIN_USERNAME": "",
+                "SUPER_ADMIN_PASSWORD": "",
+                "SESSION_SECRET_KEY": "",
+                "ENTITY_API_SERVICE_BASE_URL": "http://localhost:8080"
+            },
+            "depends_on": [
+                "mongo",
+                "edv"
+            ]
+        },
+        "studio-ui": {
+            "container_name": "studio-ui",
+            "build": {
+                "context": "./studio-frontend",
+                "dockerfile": "Dockerfile",
+                "args": [
+                    "VUE_APP_TITLE=Entity Studio 3",
+                    "VUE_APP_DESC=A portal to issue and verify credentials on Hypersign Identity network!",
+                    "VUE_APP_VERSION=v1.0",
+                    "VUE_APP_STUDIO_SERVER_BASE_URL=http://localhost:3002/",
+                    "VUE_APP_STUDIO_SERVER_BASE_WS=ws://localhost:3002/",
+                    "VUE_APP_NODE_SERVER_BASE_URL=https://rpc.jagrat.hypersign.id/",
+                    "VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.jagrat.hypersign.id/",
+                    "VUE_APP_SCHEMA_GET_EP_REST=hypersign-protocol/hidnode/ssi/schema/",
+                    "VUE_APP_ACCPCT_CRED_EP=api/v1/credential/send",
+                    "VUE_APP_EXPLORER_BASE_URL=https://explorer.hypersign.id/",
+                    "VUE_APP_STUDIO_SERVER_SAVE_SCHEMA=api/v1/schema",
+                    "VUE_APP_SCHEMA_LIST_EP=api/v1/schema",
+                    "VUE_APP_STUDIO_SERVER_CRED_LIST_EP=api/v1/credential/org",
+                    "VUE_APP_STUDIO_SERVER_CRED_ISSUE_EP=api/v1/credential",
+                    "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id",
+                    "VUE_APP_PRESENTATION_TEMPLATE_EP=api/v1/presentation/template",
+                    "VUE_APP_SSE=http://localhost:9000/"
+                ]
+            },
+            "ports": [
+                "9001:80"
+            ]
+        }
+    },
+    "volumes": {
+        "mongo": {}
+    }
 }

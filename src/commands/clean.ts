@@ -7,12 +7,19 @@ import { DependancyCheck } from '../dependencyCheck'
 
 const Listr = require('listr')
 
-const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
+import { DataDirManager } from '../dataDirManager'
+
+const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
+
 
 type Task = {title: string; task: Function}
 export default class Clean extends Command {
   static description = 'Stop and Delete Hypersign issuer node infrastructure'
   static examples = ['<%= config.bin %> <%= command.id %>']
+
+  static flags = {
+    configAlreayExists: Flags.string({options: ['y', 'N']}),
+  }
   
   getTask(taskTitle: string, task: Function, flag?:string,): Task {
     return {
@@ -30,6 +37,27 @@ export default class Clean extends Command {
   }
 
   public async run(): Promise<void> {
+    if(!DataDirManager.checkIfDataDirInitated().status){
+      throw new Error('No configuration found, kindly run `studio-cli setup` command first.')
+    } else {
+      const { flags } = await this.parse(Clean)
+      const { default: inquirer } = await import("inquirer")
+      let configAlreayExists = flags.configAlreayExists
+      if(!configAlreayExists) {
+        let response: any = await inquirer.prompt([{
+          name: 'configAlreayExists',
+          message: 'WARNING You are about to delete all your configurations, do you still want to continue?',
+          type: "confirm",
+          choices: [{name: 'y'}, {name: 'n'}]
+        }])
+        configAlreayExists = response.configAlreayExists
+      }
+
+      if(!configAlreayExists){
+       return
+      } 
+    }
+
     let allTasks;
 
     const checkingProcessesTasks = new Listr([
@@ -50,6 +78,7 @@ export default class Clean extends Command {
     ])
 
     const delayedTasks = new Listr([
+      this.getTask('Cleaning working directories', DataDirManager.cleanWorkDir),
       this.getTask(`Cleaning volumes`, this.delayedTask)
     ])
     allTasks = new Listr([

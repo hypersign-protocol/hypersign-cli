@@ -5,15 +5,15 @@ import fs from 'fs';
 import path from 'path'
 const { DirectSecp256k1HdWallet } = require('@cosmjs/proto-signing');
 import { randomUUID } from 'crypto';
-
 import { checkIfFileOrDirExists , createDir } from '../common'
 import { DockerCompose  } from '../dockerCompose'
 import { DependancyCheck } from '../dependencyCheck';
-
+import { DataDirManager } from '../dataDirManager'
 const Listr = require('listr')
 
 type Task = {title: string; task: Function}
-const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
+
+const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH 
 
 export default class Setup extends Command {
   static description = 'Setup configurations for Hypersign issuer node infrastructure'
@@ -55,7 +55,8 @@ export default class Setup extends Command {
     isEdvSetup: Flags.string({options: ['y', 'N']}),
     isDbSetup: Flags.string({options: ['y', 'N']}),
     mnemonicSetup: Flags.string({options: ['enter', 'generate']}),
-    words: Flags.string({options: ['12', '24']})
+    words: Flags.string({options: ['12', '24']}),
+    configAlreayExists: Flags.string({options: ['y', 'N']}),
   }
 
   async generateWallet(words = 24) {
@@ -113,26 +114,20 @@ export default class Setup extends Command {
       }
       if(mnemonicSetup === 'generate') {
 
-        let words = flags.words
-        if(!words) {
-          let response: any = await inquirer.prompt([{
-            name: 'words',
-            message: 'Mnemonic length',
-            type: "list",
-            choices: [{name: '12' },  {name: '24' } ]
-          }])
-          words = response.words
-        } 
+        // let words = flags.words
+        // if(!words) {
+        //   let response: any = await inquirer.prompt([{
+        //     name: 'words',
+        //     message: 'Mnemonic length',
+        //     type: "list",
+        //     choices: [{name: '12' },  {name: '24' } ]
+        //   }])
+        //   words = response.words
+        // } 
 
-        let mnemonic; 
-        if(words === '12'){
-          mnemonic = await this.generateWallet(12);  
-        } else {
-          mnemonic = await this.generateWallet(24);
-        }
-        
-          this.log('  '+mnemonic)
-          this.configParams.ssi.mnemonic  = mnemonic;
+        let mnemonic = await this.generateWallet(24);
+        this.log('  '+mnemonic)
+        this.configParams.ssi.mnemonic  = mnemonic;
       } else if (mnemonicSetup === 'enter'){
         this.configParams.ssi.mnemonic = await ux.prompt('  Enter 24 or 12 words mnemonic')
       }
@@ -229,7 +224,27 @@ export default class Setup extends Command {
 
   public async run(): Promise<void> {   
     
-    
+
+    if(DataDirManager.checkIfDataDirInitated().status){
+
+      const { flags } = await this.parse(Setup)
+      const { default: inquirer } = await import("inquirer")
+      let configAlreayExists = flags.configAlreayExists
+      if(!configAlreayExists) {
+        let response: any = await inquirer.prompt([{
+          name: 'configAlreayExists',
+          message: 'WARNING Configuration already exists, this action will erase all your existing configuration, do you still want to continue?',
+          type: "confirm",
+          choices: [{name: 'y'}, {name: 'n'}]
+        }])
+        configAlreayExists = response.configAlreayExists
+      }
+
+      if(!configAlreayExists){
+       return
+      } 
+    }
+
     const checkingProcessesTasks = new Listr([
       this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
       this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose')

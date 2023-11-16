@@ -6,8 +6,10 @@ import { DockerCompose  } from '../dockerCompose'
 const execa = require('execa')
 const Listr = require('listr')
 import { DependancyCheck } from '../dependencyCheck'
+import { DataDirManager } from '../dataDirManager'
 
-const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
+
+const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
 
 type Task = {title: string; task: Function}
 export default class Start extends Command {
@@ -24,6 +26,11 @@ export default class Start extends Command {
   }
 
   public async run(): Promise<void> {
+    
+    if(!DataDirManager.checkIfDataDirInitated().status){
+      throw new Error('No configuration found, kindly run `studio-cli setup` command first.')
+    }
+
     let allTasks;
     // Check required dependecies
     const checkingProcessesTasks = new Listr([

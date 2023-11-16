@@ -77,7 +77,7 @@
   },
   "repository": "Vishwas1/studio-cli",
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b && cp -R nginx dist/commands && cp -R studio-frontend dist/commands",
+    "build": "shx rm -rf dist && tsc -b && yarn run copy-files",
     "lint": "eslint . --ext .ts",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "yarn lint",
@@ -87,7 +87,9 @@
     "pack": "oclif pack tarballs",
     "installer:macos": "npx oclif pack macos",
     "installer:win": "npx oclif pack win",
-    "installer:deb": "npx oclif pack deb"
+    "installer:deb": "npx oclif pack deb",
+    "copy-files": "cp -R ./nginx dist/commands && cp -R ./studio-frontend dist/commands"
+    
   },
   "version": "0.0.1",
   "bugs": "https://github.com/Vishwas1/studio-cli/issues",

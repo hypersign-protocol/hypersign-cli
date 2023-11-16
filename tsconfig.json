@@ -10,5 +10,5 @@
     "esModuleInterop": true,
     "moduleResolution": "Node16"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "src/commands/nginx/nginx.conf", "src/commands/studio-frontend/*"]
 }

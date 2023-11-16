@@ -6,12 +6,67 @@ import path from 'path'
 const { DirectSecp256k1HdWallet } = require('@cosmjs/proto-signing');
 import { randomUUID } from 'crypto';
 
-
+const homedir = require('os').homedir();
 const execa = require('execa')
 const Listr = require('listr')
 
 type Task = {title: string; task: Function}
-const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
+
+console.log(homedir)
+
+const WORKDIR= `${homedir}/.studio-cli`
+const NGINXDIR = `${WORKDIR}/nginx`
+const STUDIOFRONT = `${WORKDIR}/studio-frontend`
+
+// if(fs.existsSync(WORKDIR)){
+//   fs.rmdir(WORKDIR,  {recursive: true}, (err) => {
+//     if(err) throw err
+//   })
+// }
+
+if(!fs.existsSync(WORKDIR)){
+  console.log(WORKDIR + ' does not exist')
+  fs.mkdir(WORKDIR, (err) => {
+    if(!err) console.log(WORKDIR + ' created')
+
+    fs.mkdir(NGINXDIR, (err) => {
+      if(err) throw err
+       
+        console.log(NGINXDIR + ' created')
+        const oldPath = './nginx/nginx.conf'
+        const newPath = NGINXDIR + '/nginx.conf'
+        fs.rename(oldPath, newPath, function (err) {
+          if (err) throw err
+          console.log('nginx.conf Successfully renamed - AKA moved!')
+        })
+      
+    })
+  
+    fs.mkdir(STUDIOFRONT, (err) => {
+      if(!err) console.log(STUDIOFRONT + ' created')
+  
+      const oldPathNginxConf = './studio-frontend/nginx.conf'
+      const newPathNginxConf = STUDIOFRONT + '/nginx.conf'
+      fs.rename(oldPathNginxConf, newPathNginxConf, function (err) {
+        if (err) throw err
+        console.log('studio-/nginx.conf Successfully renamed - AKA moved!')
+      })
+  
+  
+      const oldPathDocker = './studio-frontend/Dockerfile'
+      const newPathDocker = STUDIOFRONT + '/Dockerfile'
+      fs.rename(oldPathDocker, newPathDocker, function (err) {
+        if (err) throw err
+        console.log('studio-/Dockerfile Successfully renamed - AKA moved!')
+      })
+    })
+  })
+
+ 
+}
+const dockerComposeFilePath = path.join(WORKDIR, 'docker-compose.yml')
+console.log(dockerComposeFilePath)
+
 export default class Setup extends Command {
   static description = 'Setup configurations for Hypersign issuer node infrastructure'
 
@@ -191,6 +246,13 @@ export default class Setup extends Command {
   public async run(): Promise<void> {    
     { 
 
+      // fs.mkdir(WORKDIR, (err) => {
+      //   if(!err){
+      //     console.log(WORKDIR + ' created')
+      //   }
+      // });
+      
+
       
 
       // was trying with listr, but did not work..
@@ -221,6 +283,8 @@ export default class Setup extends Command {
     }
 
     let tasks = [];
+
+    // tasks.push(this.getTask(`Setting up workdir`, () => fs.mkdir(WORKDIR, (err) => { if(!err) { console.log('Created workdir')} }) ))
     const { flags } = await this.parse(Setup)
 
     { // hid-node configuration
@@ -418,7 +482,6 @@ export default class Setup extends Command {
 
     
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
-    const dockerComposeFilePath = path.join(__dirname,'docker-compose.yml')
     //this.log(dockerCompose)
     await fs.writeFileSync(dockerComposeFilePath, dockerCompose)
 

@@ -11,7 +11,6 @@
     "@oclif/plugin-plugins": "^4",
     "@types/inquirer": "^9.0.6",
     "@types/listr": "^0.14.8",
-    "execa": "^8.0.1",
     "inquirer": "^9.2.11",
     "js-yaml": "^4.1.0",
     "json-to-pretty-yaml": "^1.2.2",
@@ -29,6 +28,7 @@
     "eslint-config-oclif": "^5",
     "eslint-config-oclif-typescript": "^3",
     "eslint-config-prettier": "^9.0.0",
+    "execa": "5.1.1",
     "mocha": "^10",
     "oclif": "^3.17.2",
     "shx": "^0.3.3",
@@ -49,7 +49,15 @@
   "name": "studio-cli",
   "oclif": {
     "macos": {
-      "identifier": "studio-cli",
+      "identifier": "hypersign.id.studio.cli",
+      "version": "0.1.0-alpha"
+    },
+    "win": {
+      "identifier": "hypersign.id.studio.cli",
+      "version": "0.1.0-alpha"
+    },
+    "deb": {
+      "identifier": "hypersign.id.studio.cli",
       "version": "0.1.0-alpha"
     },
     "bin": "studio-cli",
@@ -76,7 +84,10 @@
     "prepack": "yarn build && oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md",
-    "pack": "oclif pack tarballs"
+    "pack": "oclif pack tarballs",
+    "installer:macos": "npx oclif pack macos",
+    "installer:win": "npx oclif pack win",
+    "installer:deb": "npx oclif pack deb"
   },
   "version": "0.0.1",
   "bugs": "https://github.com/Vishwas1/studio-cli/issues",

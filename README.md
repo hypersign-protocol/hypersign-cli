@@ -1,4 +1,10 @@
 
+
+
+![img](./docs/hypersign-multi-tenant-ssi-infra.png)
+
+
+
 ```bash
 studio-cli git:(master) ✗ ./bin/run.js --help                     
 

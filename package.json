@@ -11,6 +11,7 @@
     "@oclif/plugin-plugins": "^4",
     "@types/inquirer": "^9.0.6",
     "@types/listr": "^0.14.8",
+    "execa": "^8.0.1",
     "inquirer": "^9.2.11",
     "js-yaml": "^4.1.0",
     "json-to-pretty-yaml": "^1.2.2",
@@ -47,6 +48,10 @@
   "main": "dist/index.js",
   "name": "studio-cli",
   "oclif": {
+    "macos": {
+      "identifier": "studio-cli",
+      "version": "0.1.0-alpha"
+    },
     "bin": "studio-cli",
     "dirname": "studio-cli",
     "commands": "./dist/commands",

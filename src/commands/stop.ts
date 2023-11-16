@@ -2,6 +2,7 @@ import {Args, Command, Flags} from '@oclif/core'
 import dockerComponseTemplate from './docker-compose-template.json'
 import path from 'path'
 import fs from 'fs'
+import {DockerCompose } from '../dockerCompose'
 
 const execa = require('execa')
 const Listr = require('listr')
@@ -13,27 +14,19 @@ export default class Stop extends Command {
   static description = 'Stop Hypersign issuer node infrastructure'
   static examples = ['<%= config.bin %> <%= command.id %>']
   
-  dockerComposeDown(){
-    return execa('docker-compose', [
-      '-f',
-      dockerComposeFilePath,
-      'down'
-    ])
-  }
-
-  getTask(taskTitle: string, task: Function, serviceName?:string,): Task {
+  getTask(taskTitle: string, task: Function, flag?: any): Task {
     return {
       title: taskTitle,
-      task: () => task(serviceName),
+      task: () => task(flag, dockerComposeFilePath),
     }
   }
 
+
   public async run(): Promise<void> {
     let allTasks;
-    
     // Shutdown running containers
     const containerDownTasks = new Listr([
-      this.getTask(`Shutdown`, this.dockerComposeDown)
+      this.getTask(`Shutdown`, DockerCompose.down, 'stop')
     ])
 
     allTasks = new Listr([

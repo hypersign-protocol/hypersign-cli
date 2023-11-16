@@ -2,8 +2,9 @@ import {Args, Command, Flags} from '@oclif/core'
 import dockerComponseTemplate from './docker-compose-template.json'
 import path from 'path'
 import fs from 'fs'
+import { DockerCompose } from '../dockerCompose'
+import { DependancyCheck } from '../dependencyCheck'
 
-const execa = require('execa')
 const Listr = require('listr')
 
 const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
@@ -13,29 +14,10 @@ export default class Clean extends Command {
   static description = 'Stop and Delete Hypersign issuer node infrastructure'
   static examples = ['<%= config.bin %> <%= command.id %>']
   
-  dockerComposeDown(){
-    return execa('docker-compose', [
-      '-f',
-      dockerComposeFilePath,
-      'down',
-      '-v'
-    ])
-  }
-
-
-  dockerComposeRMI(service: string){
-    return execa('docker', [
-      'rmi',
-      '-f',
-      service
-    ])
-  }
-
-
-  getTask(taskTitle: string, task: Function, serviceName?:string,): Task {
+  getTask(taskTitle: string, task: Function, flag?:string,): Task {
     return {
       title: taskTitle,
-      task: () => task(serviceName),
+      task: () => task(flag, dockerComposeFilePath),
     }
   }
 
@@ -49,24 +31,29 @@ export default class Clean extends Command {
 
   public async run(): Promise<void> {
     let allTasks;
+
+    const checkingProcessesTasks = new Listr([
+      this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
+      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose')
+    ])
   
     let services = Object.keys(dockerComponseTemplate.services)
     const allservicesRmiTasks: Array<Task> = []
     services.forEach((service) => {
-      allservicesRmiTasks.push(this.getTask(`Removing ${service} image`, this.dockerComposeRMI, service))
+      allservicesRmiTasks.push(this.getTask(`Removing ${service} image`, DockerCompose.rmi, service))
     })
     const servicesRmiTasks = new Listr(allservicesRmiTasks,  {concurrent: false})
     
-
     // Shutdown running containers
     const containerDownTasks = new Listr([
-      this.getTask(`Shutdown`, this.dockerComposeDown)
+      this.getTask(`Shutdown`, DockerCompose.down)
     ])
 
     const delayedTasks = new Listr([
       this.getTask(`Cleaning volumes`, this.delayedTask)
     ])
     allTasks = new Listr([
+      this.getTask(`Checking all dependencies installed `, () => { return checkingProcessesTasks} ),
       this.getTask(`Shutting down all container(s)`, () => { return containerDownTasks  }),
       this.getTask(`Deleting associated volumes`, () => { return delayedTasks  }),
       this.getTask(`Removing images`, () => { return servicesRmiTasks })

@@ -6,15 +6,18 @@ import path from 'path'
 const { DirectSecp256k1HdWallet } = require('@cosmjs/proto-signing');
 import { randomUUID } from 'crypto';
 
+import { checkIfFileOrDirExists , createDir } from '../common'
+import { DockerCompose  } from '../dockerCompose'
+import { DependancyCheck } from '../dependencyCheck';
 
-const execa = require('execa')
 const Listr = require('listr')
 
 type Task = {title: string; task: Function}
 const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
+
 export default class Setup extends Command {
   static description = 'Setup configurations for Hypersign issuer node infrastructure'
-
+  tasks: Array<Task> = [];
   configParams = {
     database: {
       isDbSetup: true,
@@ -55,175 +58,16 @@ export default class Setup extends Command {
     words: Flags.string({options: ['12', '24']})
   }
 
-  setupConfigurationForDatabase(){
-
-  }
-
-
   async generateWallet(words = 24) {
     const offlineSigner = await DirectSecp256k1HdWallet.generate(words);
     return offlineSigner.mnemonic
   }
 
-
-  async setupConfigurationForHidNode(flag: string, context: Setup){
-    
-    const { default: inquirer } = await import("inquirer")
-    
-    let isBlockchainNode = flag
-    if(!isBlockchainNode) {
-      let response: any = await inquirer.prompt([{
-        name: 'isHidNodeSetup',
-        message: 'Do you want to setup Hypersign Blockchain node?',
-        type: 'list',
-        choices: [{name: 'y'}, {name: 'n'}]
-      }])
-      isBlockchainNode = response.isHidNodeSetup
-    }
-
-    if(isBlockchainNode === 'n' ){
-      /// skip hid-node container..
-      context.configParams.hidNode.hidNetRPC = await ux.prompt('Provide HID Node RPC endpoint')
-      context.configParams.hidNode.hidNetREST = await ux.prompt('Provide HID Node REST endpoint')
-      context.configParams.hidNode.isHidNodeSetup = false
-    } else {
-      /// TODO: Ask params to setup hypersign node container
-      context.configParams.hidNode.isHidNodeSetup = true
-      ux.action.start('Setting HID-node configurations')
-      ux.action.stop() 
-    }
-
-    
-  }
-
-  async setupConfigurationForEdv(flag: string, context: Setup){
-    
-    const { default: inquirer } = await import("inquirer")
-    let isEDV = flag
-    if(!isEDV) {
-      let response: any = await inquirer.prompt([{
-        name: 'isEdvSetup',
-        message: 'Do you want to setup Encrypted Data Vault service?',
-        type: 'list',
-        choices: [{name: 'y'}, {name: 'n'}]
-      }])
-      isEDV = response.isEdvSetup
-    }
-
-    if(isEDV === 'n' ){
-      // skip edv service container..
-      context.configParams.edv.edvUrl = await ux.prompt('Provide Data Vault Service Endpoint')
-      context.configParams.edv.isEdvSetup = false
-      // delete dockerComponseTemplate.services['edv.entity.id']
-    } else {
-      /// TODO: We need to setup edv service container..
-      ux.action.start('Setting Data Vault Service configurations')
-      ux.action.stop() 
-    }
-     
-
-
-  }
-
-  async setupSSIApiConfigration(flag: string, context: Setup){
-    ux.action.start('Setting EDV configurations', 'initializing', { stdout: true });
-
-    const { flags } = await this.parse(Setup)
-    if(!this.configParams.hidNode.isHidNodeSetup){
-      dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
-      dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
-    }
-
-    if(!this.configParams.edv.isEdvSetup) {
-      dockerComponseTemplate.services['ssi-api'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
-    }
-
-    this.configParams.ssi.mnemonic = await ux.prompt('Enter your mnemonic to control master edv')
-    this.configParams.secrets.superAdminUsername = await ux.prompt('Enter super admin username')
-    this.configParams.secrets.superAdminPassword = await ux.prompt('Enter super admin password', {type: 'hide'})
-    this.configParams.secrets.jwtSecret = flags.jwtSecret ? flags.jwtSecret: dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET;
-    this.configParams.secrets.sessionSecret = flags.sessionSecret ? flags.sessionSecret: dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY;
-    
-
-    dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
-    dockerComponseTemplate.services['ssi-api'].environment.MNEMONIC = this.configParams.ssi.mnemonic
-    dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
-    dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
-    dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername
-    
-    ux.action.stop('Finished.') 
-    
-  }
-
-  getTask(taskTitle: string, task: Function, flag?: any): Task {
-    return {
-      title: taskTitle,
-      task: () => task(flag),
-    }
-  }
-
-  delayedTask(){
-    return new Promise((resolve, reject) =>{
-      setTimeout(() => {
-        resolve('true')
-      }, 1500)
-    })
-  }
-
-  dockerComposePull(serviceName: string){
-    return execa('docker-compose', [
-      '-f',
-      dockerComposeFilePath,
-      'pull',
-      serviceName,
-    ])
-  }
-
-  dockerComposeBuild(serviceName: string){
-    return execa('docker-compose', [
-      '-f',
-      dockerComposeFilePath,
-      'build',
-      serviceName,
-    ])
-  }
-
-  public async run(): Promise<void> {    
+  async setupConfigurationForHidNode(){
     { 
 
-      
-
-      // was trying with listr, but did not work..
-      // let allTasks;
-      // const that = this;
-      // const dockerTasks = new Listr([
-      //   this.getTask(`Setting up hid-node configuration`, this.setupConfigurationForHidNode, flags.isHidNodeSetup, that),
-      //   // this.getTask(`Setting up edv configuration`, this.setupConfigurationForEdv, flags.isEdvSetup, that),
-      //   // this.getTask(`Setting up SSI API configuration`, this.setupSSIApiConfigration),
-      // ])
-
-      // allTasks = new Listr([
-      //   this.getTask(`Setting configurations`, () => { return dockerTasks  }),
-      // ],  {concurrent: false},);
-
-      // allTasks.run()
-      // .then(async () => {
-      //   const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
-      //   const dockerComposeFilePath = path.join(__dirname,'docker-compose.yml')
-      //   this.log(dockerComposeFilePath)
-      //   this.log(dockerCompose)
-      //   await fs.writeFileSync(dockerComposeFilePath, dockerCompose)
-      //   this.log('Configuration setup successfully')
-      // })
-      // .catch((err: any) => {
-      //   console.error(err)
-      // })
-    }
-
-    let tasks = [];
-    const { flags } = await this.parse(Setup)
-
-    { // hid-node configuration
+      // hid-node configuration
+      const { flags } = await this.parse(Setup)
       const { default: inquirer } = await import("inquirer")
     
       let networks = flags.networks
@@ -247,63 +91,14 @@ export default class Setup extends Command {
         throw new Error("Network not supported, supported networks ['testnet']")
       }
 
-      tasks.push(this.getTask(`Hypersign Node Configuration`, this.delayedTask))
+      this.tasks.push(this.getTask(`Hypersign Node Configuration`, this.delayedTask))
     }
+  }
 
-
-    // { // hid-node configuration
-    //   const { default: inquirer } = await import("inquirer")
-    
-    //   let isBlockchainNode = flags.isHidNodeSetup
-    //   if(!isBlockchainNode) {
-    //     let response: any = await inquirer.prompt([{
-    //       name: 'isHidNodeSetup',
-    //       message: 'Do you want to setup Hypersign Blockchain node?',
-    //       type: "confirm",
-    //       choices: [{name: 'Y'}, {name: 'n'}]
-    //     }])
-    //     isBlockchainNode = response.isHidNodeSetup
-    //   }
-
-
-    //   this.log(isBlockchainNode)
-
-    //   if(!isBlockchainNode){
-    //     /// skip hid-node container..
-    //     this.configParams.hidNode.hidNetRPC = await ux.prompt('Provide HID Node RPC endpoint')
-    //     this.configParams.hidNode.hidNetREST = await ux.prompt('Provide HID Node REST endpoint')
-    //     this.configParams.hidNode.isHidNodeSetup = false
-    //   } else {
-    //     /// TODO: Ask params to setup hypersign node container
-    //     this.configParams.hidNode.isHidNodeSetup = true
-    //     ux.action.start('Setting HID-node configurations')
-    //     ux.action.stop() 
-    //   }
-    // }
-
-    { //// edv configuration
-      /// Disabling this option in first version of cli. Everyone has to setup edv
-      // const { default: inquirer } = await import("inquirer")
-      // let isEDV = flags.isEdvSetup
-      // if(!isEDV) {
-      //   let response: any = await inquirer.prompt([{
-      //     name: 'isEdvSetup',
-      //     message: 'Want to setup Encrypted Data Vault service?',
-      //     type: "confirm",
-      //     choices: [{name: 'y'}, {name: 'n'}]
-      //   }])
-      //   isEDV = response.isEdvSetup
-      // }
-
-      // if(!isEDV){
-      //   // skip edv service container..
-      //   this.configParams.edv.edvUrl = await ux.prompt('Provide Data Vault Service Endpoint')
-      //   this.configParams.edv.isEdvSetup = false
-      // } 
-
-    }
-
-    { // SSI API configuration
+  async setupConfigurationForSSIAPI(){
+    { 
+      const { flags } = await this.parse(Setup)
+      // SSI API configuration
       const { default: inquirer } = await import("inquirer")
       
       let mnemonicSetup = flags.mnemonicSetup
@@ -385,69 +180,94 @@ export default class Setup extends Command {
       }
 
       
+    }
+  }
 
+  async setupConfigurationForEdv(flag: string, context: Setup){
+    
+    const { default: inquirer } = await import("inquirer")
+    let isEDV = flag
+    if(!isEDV) {
+      let response: any = await inquirer.prompt([{
+        name: 'isEdvSetup',
+        message: 'Do you want to setup Encrypted Data Vault service?',
+        type: 'list',
+        choices: [{name: 'y'}, {name: 'n'}]
+      }])
+      isEDV = response.isEdvSetup
+    }
+
+    if(isEDV === 'n' ){
+      // skip edv service container..
+      context.configParams.edv.edvUrl = await ux.prompt('Provide Data Vault Service Endpoint')
+      context.configParams.edv.isEdvSetup = false
+      // delete dockerComponseTemplate.services['edv.entity.id']
+    } else {
+      /// TODO: We need to setup edv service container..
+      ux.action.start('Setting Data Vault Service configurations')
+      ux.action.stop() 
+    }
      
-      tasks.push(this.getTask(`Hypersign Mongo Db Service Configuration`, this.dockerComposePull, 'mongo'))
-      tasks.push(this.getTask(`Hypersign Encrypted Data Vault Configuration`, this.dockerComposePull, 'edv'))
-      tasks.push(this.getTask(`Hypersign SSI API Service Configuration`, this.dockerComposePull, 'ssi-api'))
-      tasks.push(this.getTask(`Hypersign SSI API Proxy Service Configuration`, this.dockerComposePull, 'ssi-api-proxy'))
-      tasks.push(this.getTask(`Hypersign Studio Dashboard Service Configuration`, this.dockerComposePull, 'studio'))
-      tasks.push(this.getTask(`Hypersign Studio Dashboard UI Configuration`, this.dockerComposeBuild, 'studio-ui'))
+
+
+  }
+
+  getTask(taskTitle: string, task: Function, flag?: any): Task {
+    return {
+      title: taskTitle,
+      task: () => task(flag, dockerComposeFilePath),
     }
+  }
 
-    { //// edv configuration
-      /// Disabling this option in first version of cli. Everyone has to setup edv
-      // const { default: inquirer } = await import("inquirer")
-      // let isEDV = flags.isEdvSetup
-      // if(!isEDV) {
-      //   let response: any = await inquirer.prompt([{
-      //     name: 'isEdvSetup',
-      //     message: 'Want to setup Encrypted Data Vault service?',
-      //     type: "confirm",
-      //     choices: [{name: 'y'}, {name: 'n'}]
-      //   }])
-      //   isEDV = response.isEdvSetup
-      // }
+  delayedTask(){
+    return new Promise((resolve, reject) =>{
+      setTimeout(() => {
+        resolve('true')
+      }, 1500)
+    })
+  }
 
-      // if(!isEDV){
-      //   // skip edv service container..
-      //   this.configParams.edv.edvUrl = await ux.prompt('Provide Data Vault Service Endpoint')
-      //   this.configParams.edv.isEdvSetup = false
-      // } 
-    }
-
+  public async run(): Promise<void> {   
+    
+    
+    const checkingProcessesTasks = new Listr([
+      this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
+      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose')
+    ])
+    
+    await this.setupConfigurationForHidNode()
+    await this.setupConfigurationForSSIAPI()
     
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
-    const dockerComposeFilePath = path.join(__dirname,'docker-compose.yml')
-    //this.log(dockerCompose)
     await fs.writeFileSync(dockerComposeFilePath, dockerCompose)
 
+    this.tasks.push(this.getTask(`Hypersign Mongo Db Service Configuration`, DockerCompose.pull, 'mongo'))
+    this.tasks.push(this.getTask(`Hypersign Encrypted Data Vault Configuration`, DockerCompose.pull, 'edv'))
+    this.tasks.push(this.getTask(`Hypersign SSI API Service Configuration`, DockerCompose.pull, 'ssi-api'))
+    this.tasks.push(this.getTask(`Hypersign SSI API Proxy Service Configuration`, DockerCompose.pull, 'ssi-api-proxy'))
+    this.tasks.push(this.getTask(`Hypersign Studio Dashboard Service Configuration`, DockerCompose.pull, 'studio'))
+    this.tasks.push(this.getTask(`Hypersign Studio Dashboard UI Configuration`, DockerCompose.build, 'studio-ui'))
+
     { 
+      const dockerTasks = new Listr(this.tasks, {concurrent: true})
+      const allTasks = new Listr([
+        this.getTask(`Checking all dependencies installed `, () => { return checkingProcessesTasks  }),
+        this.getTask(`Setting all services configurations`, () => { return dockerTasks  }),
+      ],  {concurrent: false},);
 
-      // These are fake messages ...
-      const dockerTasks = new Listr(tasks, {concurrent: true})
-      // const allTasks = new Listr([
-      //   this.getTask(`Setting configurations`, () => { return dockerTasks  }),
-      // ],  {concurrent: false},);
-
-      this.log('=======================================================================')
-      ux.action.start('Setting up configurations for you', 'waiting', {stdout: true})
-      dockerTasks.run()
+      ux.action.start('Finalizing ')
+      allTasks.run()
       .then(async () => {
         const m = `
-        All configurations setup successfully!
-        You may run the 'studio-cli start' command to start your services.
+  🦄 All configurations setup successfully!
+  🦄 You may run the 'studio-cli start' command to start your services.
         `
-        ux.action.stop(m) 
-        // this.log('  All configurations setup successfully!')
-        // this.log('  You may run the `studio-cli start` command to start your services.')
+        ux.action.stop() 
+        this.log(m)
       })
       .catch((err: any) => {
         console.error(err)
       })
     }
-
-
-    // this.log('Configuration setup successfully')
   }
 }

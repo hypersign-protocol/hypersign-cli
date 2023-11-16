@@ -2,9 +2,10 @@ import {Args, Command, Flags} from '@oclif/core'
 import dockerComponseTemplate from './docker-compose-template.json'
 import path from 'path'
 import fs from 'fs'
-
+import { DockerCompose  } from '../dockerCompose'
 const execa = require('execa')
 const Listr = require('listr')
+import { DependancyCheck } from '../dependencyCheck'
 
 const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
 
@@ -13,56 +14,33 @@ export default class Start extends Command {
   static description = 'Start Hypersign issuer node infrastructure'
   static examples = ['<%= config.bin %> <%= command.id %>']
 
-  checkIfProcessInstalled(processName: string){
-    return execa(processName).catch(() => {
-      throw new Error('Docker is not installed. Please install Docker to proceeed ')
-    })
-  }
+  
 
-  dockerComposeUp(serviceName: string){
-    return execa('docker-compose', [
-      '-f',
-      dockerComposeFilePath,
-      'up',
-      '-d',
-      serviceName,
-    ])
-  }
-
-  dockerComposeDown(){
-    return execa('docker-compose', [
-      '-f',
-      dockerComposeFilePath,
-      'down'
-    ])
-  }
-
-  getTask(taskTitle: string, task: Function, serviceName?:string,): Task {
+  getTask(taskTitle: string, task: Function, flag?:string,): Task {
     return {
       title: taskTitle,
-      task: () => task(serviceName),
+      task: () => task(flag, dockerComposeFilePath),
     }
   }
 
   public async run(): Promise<void> {
     let allTasks;
-    
     // Check required dependecies
     const checkingProcessesTasks = new Listr([
-      this.getTask(`Checking if docker is installed`, this.checkIfProcessInstalled, 'docker'),
-      this.getTask(`Checking if docker-compose is installed`, this.checkIfProcessInstalled, 'docker-compose')
+      this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
+      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose')
     ])
     
     // Shutdown running containers
     const containerDownTasks = new Listr([
-      this.getTask(`Shutdown`, this.dockerComposeDown)
+      this.getTask(`Shutdown`, DockerCompose.down)
     ])
 
     // Restart containers one by one
     let services = Object.keys(dockerComponseTemplate.services)
     const allservicesUpTasks: Array<Task> = []
     services.forEach((service) => {
-      allservicesUpTasks.push(this.getTask(`Starting ${service} container`, this.dockerComposeUp, service))
+      allservicesUpTasks.push(this.getTask(`Starting ${service} container`, DockerCompose.up, service))
     })
     const servicesTasks = new Listr(allservicesUpTasks,  {concurrent: false})
     

@@ -71,9 +71,9 @@
     "prepack": "yarn build && oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md",
-    "pack":"oclif pack tarballs"
+    "pack": "oclif pack tarballs"
   },
-  "version": "0.0.0",
+  "version": "0.0.1",
   "bugs": "https://github.com/Vishwas1/studio-cli/issues",
   "keywords": [
     "oclif"

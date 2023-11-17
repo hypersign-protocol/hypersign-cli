@@ -1,7 +1,7 @@
 {
   "author": "vishwas1 @Vishwas1",
   "bin": {
-    "studio-cli": "./bin/run.js"
+    "hypersign-ssi": "./bin/run.js"
   },
   "dependencies": {
     "@cosmjs/proto-signing": "^0.31.3",
@@ -43,10 +43,10 @@
     "/dist",
     "/oclif.manifest.json"
   ],
-  "homepage": "https://github.com/Vishwas1/studio-cli",
+  "homepage": "https://github.com/hypersign-protocol/hypersign-cli",
   "license": "MIT",
   "main": "dist/index.js",
-  "name": "studio-cli",
+  "name": "hypersign-ssi",
   "oclif": {
     "macos": {
       "identifier": "hypersign.id.studio.cli",
@@ -60,8 +60,8 @@
       "identifier": "hypersign.id.studio.cli",
       "version": "0.1.0-alpha"
     },
-    "bin": "studio-cli",
-    "dirname": "studio-cli",
+    "bin": "hypersign-ssi",
+    "dirname": "hypersign-ssi",
     "commands": "./dist/commands",
     "plugins": [
       "@oclif/plugin-help",
@@ -78,7 +78,7 @@
       "init": "./dist/hooks/init/myhook"
     }
   },
-  "repository": "Vishwas1/studio-cli",
+  "repository": "https://github.com/hypersign-protocol/hypersign-cli",
   "scripts": {
     "build": "shx rm -rf dist && tsc -b && cp -R nginx dist/commands && cp -R studio-frontend dist/commands",
     "lint": "eslint . --ext .ts",
@@ -93,7 +93,7 @@
     "installer:deb": "npx oclif pack deb"
   },
   "version": "0.0.1",
-  "bugs": "https://github.com/Vishwas1/studio-cli/issues",
+  "bugs": "https://github.com/hypersign-protocol/hypersign-cli/issues",
   "keywords": [
     "oclif"
   ],

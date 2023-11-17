@@ -5,7 +5,6 @@ import fs from 'fs';
 import path from 'path'
 const { DirectSecp256k1HdWallet } = require('@cosmjs/proto-signing');
 import { randomUUID } from 'crypto';
-import { checkIfFileOrDirExists , createDir } from '../common'
 import { DockerCompose  } from '../dockerCompose'
 import { DependancyCheck } from '../dependencyCheck';
 import { DataDirManager } from '../dataDirManager'
@@ -223,7 +222,9 @@ export default class Setup extends Command {
   }
 
   public async run(): Promise<void> {   
-    
+    try {
+
+   
 
     if(DataDirManager.checkIfDataDirInitated().status){
 
@@ -247,7 +248,8 @@ export default class Setup extends Command {
 
     const checkingProcessesTasks = new Listr([
       this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
-      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose')
+      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose'),
+      this.getTask(`Checking if docker deamon is running`, DockerCompose.isDeamonRunning)
     ])
     
     await this.setupConfigurationForHidNode()
@@ -284,5 +286,13 @@ export default class Setup extends Command {
         console.error(err)
       })
     }
+
+    
+  }
+  catch(e){
+    DataDirManager.cleanWorkDir()
+    throw e
+  }
+
   }
 }

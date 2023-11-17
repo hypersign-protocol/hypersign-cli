@@ -8,6 +8,7 @@ const execa = require('execa')
 const Listr = require('listr')
 
 import { DataDirManager } from '../dataDirManager'
+import { DependancyCheck } from '../dependencyCheck'
 
 const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
 
@@ -31,12 +32,20 @@ export default class Stop extends Command {
     }
     
     let allTasks;
+
+    const checkingProcessesTasks = new Listr([
+      this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
+      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose'),
+      this.getTask(`Checking if docker deamon is running`, DockerCompose.isDeamonRunning)
+    ])
+
     // Shutdown running containers
     const containerDownTasks = new Listr([
       this.getTask(`Shutdown`, DockerCompose.down, 'stop')
     ])
 
     allTasks = new Listr([
+      this.getTask('Checking if all dependencies are installed' , () => { return checkingProcessesTasks} ),
       this.getTask(`Shutting down all container(s)`, () => { return containerDownTasks  }),
     ],  {concurrent: false},);
 

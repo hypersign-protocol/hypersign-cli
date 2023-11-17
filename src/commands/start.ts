@@ -35,7 +35,8 @@ export default class Start extends Command {
     // Check required dependecies
     const checkingProcessesTasks = new Listr([
       this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
-      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose')
+      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose'),
+      this.getTask(`Checking if docker deamon is running`, DockerCompose.isDeamonRunning)
     ])
     
     // Shutdown running containers

@@ -9,13 +9,13 @@ import { DockerCompose  } from '../dockerCompose'
 import { DependancyCheck } from '../dependencyCheck';
 import { DataDirManager } from '../dataDirManager'
 const Listr = require('listr')
-
+import * as Messages from '../messages'
 type Task = {title: string; task: Function}
 
 const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH 
 
 export default class Setup extends Command {
-  static description = 'Setup configurations for Hypersign issuer node infrastructure'
+  static description = Messages.LOG.SETUP_DESCRIPTION
   tasks: Array<Task> = [];
   configParams = {
     database: {
@@ -74,7 +74,7 @@ export default class Setup extends Command {
       if(!networks) {
         let response: any = await inquirer.prompt([{
           name: 'networks',
-          message: 'Select Hypersign network',
+          message: Messages.PROMPTS.SELECT_NETWORK,
           type: "list",
           choices: [{name: 'testnet' },  {name: 'custom', disabled: true}, {name: 'mainnet', disabled: true} ]
         }])
@@ -86,12 +86,12 @@ export default class Setup extends Command {
         this.configParams.hidNode.hidNetREST = 'https://api.jagrat.hypersign.id/' //await ux.prompt(`[${networks}] Enter Hypersign Node REST Endpoint`)
         this.configParams.hidNode.isHidNodeSetup = false
       } else if (networks === 'mainnet'){
-        throw new Error("Network not supported, supported networks ['testnet']")
+        throw new Error(Messages.ERRORS.NETWORK_NOT_SUPPOERTED)
       } else if (networks === 'custom'){
-        throw new Error("Network not supported, supported networks ['testnet']")
+        throw new Error(Messages.ERRORS.NETWORK_NOT_SUPPOERTED)
       }
 
-      this.tasks.push(this.getTask(`Hypersign Node Configuration`, this.delayedTask))
+      this.tasks.push(this.getTask(Messages.TASKS.HID_NODE_CONFIG, this.delayedTask))
     }
   }
 
@@ -105,30 +105,18 @@ export default class Setup extends Command {
       if(!mnemonicSetup) {
         let response: any = await inquirer.prompt([{
           name: 'mnemonicSetup',
-          message: 'Choose mnemonic setup',
+          message: Messages.PROMPTS.CHOOSE_MNEMONIC,
           type: "list",
           choices: [{name: 'enter' },  {name: 'generate' } ]
         }])
         mnemonicSetup = response.mnemonicSetup
       }
       if(mnemonicSetup === 'generate') {
-
-        // let words = flags.words
-        // if(!words) {
-        //   let response: any = await inquirer.prompt([{
-        //     name: 'words',
-        //     message: 'Mnemonic length',
-        //     type: "list",
-        //     choices: [{name: '12' },  {name: '24' } ]
-        //   }])
-        //   words = response.words
-        // } 
-
         let mnemonic = await this.generateWallet(24);
         this.log('  '+mnemonic)
         this.configParams.ssi.mnemonic  = mnemonic;
       } else if (mnemonicSetup === 'enter'){
-        this.configParams.ssi.mnemonic = await ux.prompt('  Enter 24 or 12 words mnemonic')
+        this.configParams.ssi.mnemonic = await ux.prompt(Messages.PROMPTS.ENTER_WORDS_MNEMONIC)
       }
 
       
@@ -177,35 +165,6 @@ export default class Setup extends Command {
     }
   }
 
-  async setupConfigurationForEdv(flag: string, context: Setup){
-    
-    const { default: inquirer } = await import("inquirer")
-    let isEDV = flag
-    if(!isEDV) {
-      let response: any = await inquirer.prompt([{
-        name: 'isEdvSetup',
-        message: 'Do you want to setup Encrypted Data Vault service?',
-        type: 'list',
-        choices: [{name: 'y'}, {name: 'n'}]
-      }])
-      isEDV = response.isEdvSetup
-    }
-
-    if(isEDV === 'n' ){
-      // skip edv service container..
-      context.configParams.edv.edvUrl = await ux.prompt('Provide Data Vault Service Endpoint')
-      context.configParams.edv.isEdvSetup = false
-      // delete dockerComponseTemplate.services['edv.entity.id']
-    } else {
-      /// TODO: We need to setup edv service container..
-      ux.action.start('Setting Data Vault Service configurations')
-      ux.action.stop() 
-    }
-     
-
-
-  }
-
   getTask(taskTitle: string, task: Function, flag?: any): Task {
     return {
       title: taskTitle,
@@ -234,7 +193,7 @@ export default class Setup extends Command {
       if(!configAlreayExists) {
         let response: any = await inquirer.prompt([{
           name: 'configAlreayExists',
-          message: 'WARNING Configuration already exists, this action will erase all your existing configuration, do you still want to continue?',
+          message: Messages.PROMPTS.CONFIGURATION_ALREADY_EXISTS_Q,
           type: "confirm",
           choices: [{name: 'y'}, {name: 'n'}]
         }])
@@ -247,9 +206,9 @@ export default class Setup extends Command {
     }
 
     const checkingProcessesTasks = new Listr([
-      this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
-      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose'),
-      this.getTask(`Checking if docker deamon is running`, DockerCompose.isDeamonRunning)
+      this.getTask(Messages.TASKS.IF_DOCKER_INSTALLED, DependancyCheck.ifProcessInstalled, Messages.SERVICES_NAMES.DOCKER),
+      this.getTask(Messages.TASKS.IF_DOCKER_COMPOSE_INSTALLED, DependancyCheck.ifProcessInstalled, Messages.SERVICES_NAMES.DOCKER_COMPOSE),
+      this.getTask(Messages.TASKS.IF_DOCKER_DEAMON_RUNNING, DockerCompose.isDeamonRunning)
     ])
     
     await this.setupConfigurationForHidNode()
@@ -258,29 +217,25 @@ export default class Setup extends Command {
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
     await fs.writeFileSync(dockerComposeFilePath, dockerCompose)
 
-    this.tasks.push(this.getTask(`Hypersign Mongo Db Service Configuration`, DockerCompose.pull, 'mongo'))
-    this.tasks.push(this.getTask(`Hypersign Encrypted Data Vault Configuration`, DockerCompose.pull, 'edv'))
-    this.tasks.push(this.getTask(`Hypersign SSI API Service Configuration`, DockerCompose.pull, 'ssi-api'))
-    this.tasks.push(this.getTask(`Hypersign SSI API Proxy Service Configuration`, DockerCompose.pull, 'ssi-api-proxy'))
-    this.tasks.push(this.getTask(`Hypersign Studio Dashboard Service Configuration`, DockerCompose.pull, 'studio'))
-    this.tasks.push(this.getTask(`Hypersign Studio Dashboard UI Configuration`, DockerCompose.build, 'studio-ui'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_MONGO_CONFIG, DockerCompose.pull, 'mongo'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_EDV_CONFIG, DockerCompose.pull, 'edv'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_CONFIG, DockerCompose.pull, 'ssi-api'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_PROXY_CONFIG, DockerCompose.pull, 'ssi-api-proxy'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_SERVICE_CONFIG, DockerCompose.pull, 'studio'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_UI_CONFIG, DockerCompose.build, 'studio-ui'))
 
     { 
       const dockerTasks = new Listr(this.tasks, {concurrent: true})
       const allTasks = new Listr([
-        this.getTask(`Checking all dependencies installed `, () => { return checkingProcessesTasks  }),
-        this.getTask(`Setting all services configurations`, () => { return dockerTasks  }),
+        this.getTask(Messages.TASKS.IF_ALL_DEPENDENCIES_INSTALLED, () => { return checkingProcessesTasks  }),
+        this.getTask(Messages.TASKS.SETTING_SERVIES_CONFIG, () => { return dockerTasks  }),
       ],  {concurrent: false},);
 
       ux.action.start('Finalizing ')
       allTasks.run()
       .then(async () => {
-        const m = `
-  🦄 All configurations setup successfully!
-  🦄 You may run the 'studio-cli start' command to start your services.
-        `
         ux.action.stop() 
-        this.log(m)
+        this.log(Messages.LOG.ALL_CONFIG_SUCCESS)
       })
       .catch((err: any) => {
         console.error(err)

@@ -1,9 +1,8 @@
-import {Args, Command, Flags} from '@oclif/core'
+import {Command, Flags} from '@oclif/core'
 import dockerComponseTemplate from './docker-compose-template.json'
-import path from 'path'
-import fs from 'fs'
 import { DockerCompose } from '../dockerCompose'
 import { DependancyCheck } from '../dependencyCheck'
+import * as Messages from '../messages'
 
 const Listr = require('listr')
 
@@ -14,7 +13,7 @@ const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
 
 type Task = {title: string; task: Function}
 export default class Clean extends Command {
-  static description = 'Stop and Delete Hypersign issuer node infrastructure'
+  static description = Messages.LOG.CLEAN_DESCRIPTION
   static examples = ['<%= config.bin %> <%= command.id %>']
 
   static flags = {
@@ -38,7 +37,7 @@ export default class Clean extends Command {
 
   public async run(): Promise<void> {
     if(!DataDirManager.checkIfDataDirInitated().status){
-      throw new Error('No configuration found, kindly run `studio-cli setup` command first.')
+      throw new Error(Messages.ERRORS.NO_CONFIG_FOUND)
     } else {
       const { flags } = await this.parse(Clean)
       const { default: inquirer } = await import("inquirer")
@@ -46,7 +45,7 @@ export default class Clean extends Command {
       if(!configAlreayExists) {
         let response: any = await inquirer.prompt([{
           name: 'configAlreayExists',
-          message: 'WARNING You are about to delete all your configurations, do you still want to continue?',
+          message: Messages.PROMPTS.ABOUT_TO_DELETE_ALL_CONFIG_Q,
           type: "confirm",
           choices: [{name: 'y'}, {name: 'n'}]
         }])
@@ -61,9 +60,9 @@ export default class Clean extends Command {
     let allTasks;
 
     const checkingProcessesTasks = new Listr([
-      this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
-      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose'),
-      this.getTask(`Checking if docker deamon is running`, DockerCompose.isDeamonRunning)
+      this.getTask(Messages.TASKS.IF_DOCKER_INSTALLED, DependancyCheck.ifProcessInstalled, 'docker'),
+      this.getTask(Messages.TASKS.IF_DOCKER_COMPOSE_INSTALLED, DependancyCheck.ifProcessInstalled, 'docker-compose'),
+      this.getTask(Messages.TASKS.IF_DOCKER_DEAMON_RUNNING, DockerCompose.isDeamonRunning)
     ])
   
     let services = Object.keys(dockerComponseTemplate.services)
@@ -75,23 +74,23 @@ export default class Clean extends Command {
     
     // Shutdown running containers
     const containerDownTasks = new Listr([
-      this.getTask(`Shutdown`, DockerCompose.down)
+      this.getTask(Messages.TASKS.SHUTTINGDOWN, DockerCompose.down)
     ])
 
     const delayedTasks = new Listr([
-      this.getTask('Cleaning working directories', DataDirManager.cleanWorkDir),
-      this.getTask(`Cleaning volumes`, this.delayedTask)
+      this.getTask(Messages.TASKS.CLEAN_WORKDIR, DataDirManager.cleanWorkDir),
+      // this.getTask(`Cleaning volumes`, this.delayedTask)
     ])
     allTasks = new Listr([
-      this.getTask(`Checking all dependencies installed `, () => { return checkingProcessesTasks} ),
-      this.getTask(`Shutting down all container(s)`, () => { return containerDownTasks  }),
-      this.getTask(`Deleting associated volumes`, () => { return delayedTasks  }),
-      this.getTask(`Removing images`, () => { return servicesRmiTasks })
+      this.getTask(Messages.TASKS.IF_ALL_DEPENDENCIES_INSTALLED, () => { return checkingProcessesTasks} ),
+      this.getTask(Messages.TASKS.SHUTTING_DOWN_CONTAINERS, () => { return containerDownTasks  }),
+      this.getTask(Messages.TASKS.DELETE_VOLUMES, () => { return delayedTasks  }),
+      this.getTask(Messages.TASKS.REMOVE_IMAGES, () => { return servicesRmiTasks })
     ],  {concurrent: false},);
 
-    allTasks.run()
+    allTasks.run(Messages.LOG.ALL_CONTAINERS_CLEANED)
     .then(() => {
-        this.log('All containers has been cleaned successfully')
+        this.log()
     })
     .catch((err: any) => {
       console.error(err)

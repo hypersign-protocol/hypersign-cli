@@ -1,9 +1,7 @@
-import {Args, Command, Flags} from '@oclif/core'
-import dockerComponseTemplate from './docker-compose-template.json'
-import path from 'path'
-import fs from 'fs'
+import {Command} from '@oclif/core'
 import {DockerCompose } from '../dockerCompose'
 
+import * as Messages from '../messages'
 
 const Listr = require('listr')
 
@@ -15,7 +13,7 @@ const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
 
 type Task = {title: string; task: Function}
 export default class Stop extends Command {
-  static description = 'Stop Hypersign issuer node infrastructure'
+  static description = Messages.LOG.STOP_DESCRIPTION
   static examples = ['<%= config.bin %> <%= command.id %>']
   
   getTask(taskTitle: string, task: Function, flag?: any): Task {
@@ -28,15 +26,15 @@ export default class Stop extends Command {
 
   public async run(): Promise<void> {
     if(!DataDirManager.checkIfDataDirInitated().status){
-      throw new Error('No configuration found, kindly run `studio-cli setup` command first.')
+      throw new Error(Messages.ERRORS.NO_CONFIG_FOUND)
     }
     
     let allTasks;
 
     const checkingProcessesTasks = new Listr([
-      this.getTask(`Checking if docker is installed`, DependancyCheck.ifProcessInstalled, 'docker'),
-      this.getTask(`Checking if docker-compose is installed`, DependancyCheck.ifProcessInstalled, 'docker-compose'),
-      this.getTask(`Checking if docker deamon is running`, DockerCompose.isDeamonRunning)
+      this.getTask(Messages.TASKS.IF_DOCKER_INSTALLED, DependancyCheck.ifProcessInstalled, 'docker'),
+      this.getTask(Messages.TASKS.IF_DOCKER_COMPOSE_INSTALLED, DependancyCheck.ifProcessInstalled, 'docker-compose'),
+      this.getTask(Messages.TASKS.IF_DOCKER_DEAMON_RUNNING, DockerCompose.isDeamonRunning)
     ])
 
     // Shutdown running containers
@@ -45,15 +43,15 @@ export default class Stop extends Command {
     ])
 
     allTasks = new Listr([
-      this.getTask('Checking if all dependencies are installed' , () => { return checkingProcessesTasks} ),
-      this.getTask(`Shutting down all container(s)`, () => { return containerDownTasks  }),
+      this.getTask(Messages.TASKS.IF_ALL_DEPENDENCIES_INSTALLED , () => { return checkingProcessesTasks} ),
+      this.getTask(Messages.TASKS.SHUTTING_DOWN_CONTAINERS, () => { return containerDownTasks  }),
     ],  {concurrent: false},);
 
     
     
     allTasks.run()
     .then(() => {
-        this.log('All containers has been stopped successfully')
+        this.log(Messages.LOG.ALL_CONTAINERS_STOPPED)
     })
     .catch((err: any) => {
       console.error(err)

@@ -1,17 +1,13 @@
 import {Command} from '@oclif/core'
 import {DockerCompose } from '../dockerCompose'
-
 import * as Messages from '../messages'
-
 const Listr = require('listr')
-
 import { DataDirManager } from '../dataDirManager'
 import { DependancyCheck } from '../dependencyCheck'
 
 const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
-
-
 type Task = {title: string; task: Function}
+
 export default class Stop extends Command {
   static description = Messages.LOG.STOP_DESCRIPTION
   static examples = ['<%= config.bin %> <%= command.id %>']

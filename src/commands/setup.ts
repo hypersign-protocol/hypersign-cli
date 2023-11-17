@@ -1,8 +1,7 @@
-import {Args, Command, Flags, ux} from '@oclif/core'
+import { Command, Flags, ux} from '@oclif/core'
 import  dockerComponseTemplate from './docker-compose-template.json'
 const YAMLFormatter = require('json-to-pretty-yaml');
 import fs from 'fs';
-import path from 'path'
 const { DirectSecp256k1HdWallet } = require('@cosmjs/proto-signing');
 import { randomUUID } from 'crypto';
 import { DockerCompose  } from '../dockerCompose'

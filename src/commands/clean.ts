@@ -3,15 +3,12 @@ import dockerComponseTemplate from './docker-compose-template.json'
 import { DockerCompose } from '../dockerCompose'
 import { DependancyCheck } from '../dependencyCheck'
 import * as Messages from '../messages'
-
 const Listr = require('listr')
-
 import { DataDirManager } from '../dataDirManager'
 
 const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
-
-
 type Task = {title: string; task: Function}
+
 export default class Clean extends Command {
   static description = Messages.LOG.CLEAN_DESCRIPTION
   static examples = ['<%= config.bin %> <%= command.id %>']

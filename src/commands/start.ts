@@ -1,17 +1,14 @@
-import {Args, Command, Flags} from '@oclif/core'
+import { Command } from '@oclif/core'
 import dockerComponseTemplate from './docker-compose-template.json'
-import path from 'path'
-import fs from 'fs'
 import { DockerCompose  } from '../dockerCompose'
 const Listr = require('listr')
 import { DependancyCheck } from '../dependencyCheck'
 import { DataDirManager } from '../dataDirManager'
 import * as Messages from '../messages'
 
-
 const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
-
 type Task = {title: string; task: Function}
+
 export default class Start extends Command {
   static description = Messages.LOG.START_DESCRIPTION
   static examples = ['<%= config.bin %> <%= command.id %>']

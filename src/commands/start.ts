@@ -3,7 +3,6 @@ import dockerComponseTemplate from './docker-compose-template.json'
 import path from 'path'
 import fs from 'fs'
 import { DockerCompose  } from '../dockerCompose'
-const execa = require('execa')
 const Listr = require('listr')
 import { DependancyCheck } from '../dependencyCheck'
 import { DataDirManager } from '../dataDirManager'
@@ -21,7 +20,7 @@ export default class Start extends Command {
   getTask(taskTitle: string, task: Function, flag?:string,): Task {
     return {
       title: taskTitle,
-      task: () => task(flag, dockerComposeFilePath),
+      task: async () => await task(flag, dockerComposeFilePath),
     }
   }
 

@@ -4,7 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import {DockerCompose } from '../dockerCompose'
 
-const execa = require('execa')
+
 const Listr = require('listr')
 
 import { DataDirManager } from '../dataDirManager'
@@ -21,7 +21,7 @@ export default class Stop extends Command {
   getTask(taskTitle: string, task: Function, flag?: any): Task {
     return {
       title: taskTitle,
-      task: () => task(flag, dockerComposeFilePath),
+      task: async () => await task(flag, dockerComposeFilePath),
     }
   }
 

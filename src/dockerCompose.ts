@@ -1,13 +1,18 @@
-const execa = require('execa')
+// const execa = require('execa')
+// import { execa } from "execa";
+
 export class DockerCompose {
-  static isDeamonRunning(serviceName: string, dockerComposeFilePath: string,){
+  static async isDeamonRunning(serviceName: string, dockerComposeFilePath: string): Promise<any>{
+    const { execa } = await import("execa");
+
     return execa('docker', [
       'stats',
       '--no-stream'
     ])
   }
 
-  static pull(serviceName: string, dockerComposeFilePath: string,){
+  static async pull(serviceName: string, dockerComposeFilePath: string,): Promise<any>{
+    const { execa } = await import("execa");
     return execa('docker-compose', [
       '-f',
       dockerComposeFilePath,
@@ -16,7 +21,8 @@ export class DockerCompose {
     ])
   }
   
-  static build(serviceName: string, dockerComposeFilePath: string){
+  static async build(serviceName: string, dockerComposeFilePath: string): Promise<any>{
+    const { execa } = await import("execa");
       return execa('docker-compose', [
           '-f',
           dockerComposeFilePath,
@@ -25,7 +31,8 @@ export class DockerCompose {
       ])
   }
 
-  static up( serviceName: string, dockerComposeFilePath: string){
+  static async up( serviceName: string, dockerComposeFilePath: string): Promise<any>{
+    const { execa } = await import("execa");
       return execa('docker-compose', [
           '-f',
           dockerComposeFilePath,
@@ -35,7 +42,8 @@ export class DockerCompose {
       ])
   }
 
-  static down(serviceName: string, dockerComposeFilePath: string){
+  static async down(serviceName: string, dockerComposeFilePath: string): Promise<any>{
+    const { execa } = await import("execa");
       return execa('docker-compose', [
         '-f',
         dockerComposeFilePath,
@@ -43,7 +51,8 @@ export class DockerCompose {
       ])
   }
 
-  static rmi(service: string, dockerComposeFilePath: string){
+  static async rmi(service: string, dockerComposeFilePath: string): Promise<any>{
+    const { execa } = await import("execa");
     return execa('docker', [
       'rmi',
       '-f',

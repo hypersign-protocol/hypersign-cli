@@ -209,7 +209,7 @@ export default class Setup extends Command {
   getTask(taskTitle: string, task: Function, flag?: any): Task {
     return {
       title: taskTitle,
-      task: () => task(flag, dockerComposeFilePath),
+      task: async () => await task(flag, dockerComposeFilePath),
     }
   }
 

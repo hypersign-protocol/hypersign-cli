@@ -11,6 +11,7 @@
     "@oclif/plugin-plugins": "^4",
     "@types/inquirer": "^9.0.6",
     "@types/listr": "^0.14.8",
+    "execa": "^8.0.1",
     "inquirer": "^9.2.11",
     "js-yaml": "^4.1.0",
     "json-to-pretty-yaml": "^1.2.2",
@@ -28,12 +29,11 @@
     "eslint-config-oclif": "^5",
     "eslint-config-oclif-typescript": "^3",
     "eslint-config-prettier": "^9.0.0",
-    "execa": "5.1.1",
     "mocha": "^10",
     "oclif": "^3.17.2",
     "shx": "^0.3.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5"
+    "typescript": "^5.4.0-dev.20231116"
   },
   "engines": {
     "node": ">=18.0.0"

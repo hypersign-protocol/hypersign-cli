@@ -15,17 +15,17 @@ export class DataDirManager {
         let oldfilePath = path.join(__dirname, 'commands/nginx/nginx.conf')
         let newfilePath = `${DataDirManager.NGINXDIR}/nginx.conf`
 
-        DataDirManager.fileMove(oldfilePath, newfilePath)
+        DataDirManager.fileCopy(oldfilePath, newfilePath)
         
         if(!fs.existsSync(DataDirManager.STUDIODIR)) fs.mkdirSync(DataDirManager.STUDIODIR);
         
         oldfilePath = path.join(__dirname, 'commands/studio-frontend/nginx.conf');
         newfilePath = `${DataDirManager.STUDIODIR}/nginx.conf`
-        DataDirManager.fileMove(oldfilePath, newfilePath)
+        DataDirManager.fileCopy(oldfilePath, newfilePath)
 
         oldfilePath = path.join(__dirname,'commands/studio-frontend/Dockerfile');
         newfilePath = `${DataDirManager.STUDIODIR}/Dockerfile`
-        DataDirManager.fileMove(oldfilePath, newfilePath)
+        DataDirManager.fileCopy(oldfilePath, newfilePath)
     }
 
     static checkIfDataDirInitated(): { status: boolean, messages: string[] } {
@@ -55,8 +55,8 @@ export class DataDirManager {
         fs.rmSync(DataDirManager.WORKDIR, { recursive: true, force: true });
     }
 
-    static fileMove(oldfilePath: string, newfilePath: string){
-        fs.renameSync(oldfilePath, newfilePath)
+    static fileCopy(oldfilePath: string, newfilePath: string){
+        fs.copyFileSync(oldfilePath, newfilePath)
     }
       
 }

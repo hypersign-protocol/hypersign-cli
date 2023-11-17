@@ -21,10 +21,10 @@ export default class Clean extends Command {
     configAlreayExists: Flags.string({options: ['y', 'N']}),
   }
   
-  getTask(taskTitle: string, task: Function, flag?:string,): Task {
+  getTask(taskTitle: string, task: Function, flag?: any): Task {
     return {
       title: taskTitle,
-      task: () => task(flag, dockerComposeFilePath),
+      task: async () => await task(flag, dockerComposeFilePath),
     }
   }
 

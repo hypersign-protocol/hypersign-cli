@@ -1,11 +1,11 @@
 // const execa = require('execa')
 // import { execa } from "execa";
-
+import * as Message from "./messages"
 export class DockerCompose {
   static async isDeamonRunning(serviceName: string, dockerComposeFilePath: string): Promise<any>{
     const { execa } = await import("execa");
 
-    return execa('docker', [
+    return execa(Message.SERVICES_NAMES.DOCKER, [
       'stats',
       '--no-stream'
     ])
@@ -13,7 +13,7 @@ export class DockerCompose {
 
   static async pull(serviceName: string, dockerComposeFilePath: string,): Promise<any>{
     const { execa } = await import("execa");
-    return execa('docker-compose', [
+    return execa(Message.SERVICES_NAMES.DOCKER_COMPOSE, [
       '-f',
       dockerComposeFilePath,
       'pull',
@@ -23,7 +23,7 @@ export class DockerCompose {
   
   static async build(serviceName: string, dockerComposeFilePath: string): Promise<any>{
     const { execa } = await import("execa");
-      return execa('docker-compose', [
+      return execa(Message.SERVICES_NAMES.DOCKER_COMPOSE, [
           '-f',
           dockerComposeFilePath,
           'build',
@@ -33,7 +33,7 @@ export class DockerCompose {
 
   static async up( serviceName: string, dockerComposeFilePath: string): Promise<any>{
     const { execa } = await import("execa");
-      return execa('docker-compose', [
+      return execa(Message.SERVICES_NAMES.DOCKER_COMPOSE, [
           '-f',
           dockerComposeFilePath,
           'up',
@@ -44,7 +44,7 @@ export class DockerCompose {
 
   static async down(serviceName: string, dockerComposeFilePath: string): Promise<any>{
     const { execa } = await import("execa");
-      return execa('docker-compose', [
+      return execa(Message.SERVICES_NAMES.DOCKER_COMPOSE, [
         '-f',
         dockerComposeFilePath,
         'down'

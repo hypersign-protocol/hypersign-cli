@@ -18,7 +18,6 @@
             "environment": {
                 "PORT": 3000,
                 "HOST": "edv:3000",
-                "SSL": false,
                 "ABSOLUTE_URL": "edv:3000",
                 "DATA_VAULT": "./.encData",
                 "DB_URL": "mongodb://mongo:27017"

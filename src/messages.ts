@@ -35,8 +35,8 @@ export const TASKS = Object.freeze({
     HID_NODE_CONFIG: `Hypersign Node Configuration`,
 
     CLEAN_WORKDIR: 'Cleaning working directories',
-    IF_DOCKER_INSTALLED: "Checking if docker is installed",
-    IF_DOCKER_COMPOSE_INSTALLED: `Checking if docker-compose is installed`,
+    IF_DOCKER_INSTALLED: `Checking if ${SERVICES_NAMES.DOCKER} is installed`,
+    IF_DOCKER_COMPOSE_INSTALLED: `Checking if ${SERVICES_NAMES.DOCKER_COMPOSE} is installed`,
     IF_DOCKER_DEAMON_RUNNING: `Checking if docker deamon is running`,
 
     SPINNING_UP_CONTAINER: 'Spinning up all container(s)',

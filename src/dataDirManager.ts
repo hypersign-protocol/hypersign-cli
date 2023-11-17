@@ -1,8 +1,9 @@
 import fs from 'fs'
 import { homedir } from 'os'
 import path from 'path'
+import * as Message from './messages'
 export class DataDirManager {
-    static readonly WORKDIR = `${homedir}/.studio-cli`
+    static readonly WORKDIR = `${homedir}/${Message.SERVICES_NAMES.WORKDIRNAME}`
     static readonly DOCKERCOMPOSE_FILE_PATH =  path.join(DataDirManager.WORKDIR, 'docker-compose.yml')
     private static readonly STUDIODIR = `${DataDirManager.WORKDIR}/studio-frontend` 
     private static readonly NGINXDIR = `${DataDirManager.WORKDIR}/nginx` 

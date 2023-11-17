@@ -8,14 +8,15 @@ export const SERVICES_NAMES = Object.freeze({
     APP_NAME: "Hypersign SSI Infrastructure",
     TENANT_URL_API_DASH_FORMAT: 'Tenant URL Swagger API',
     DOCKER: 'docker',
-    DOCKER_COMPOSE: 'docker-compose'
+    DOCKER_COMPOSE: 'docker compose',
+    WORKDIRNAME: '.hypersign-ssi',
 })
 
 export const ERRORS = Object.freeze({
     NETWORK_NOT_SUPPOERTED: "The network is unsupported; only the 'testnet' network is supported.",
     NO_CONFIG_FOUND: "There's no configuration detected. Please initiate the `studio-cli setup` command to set it up initially.",
-    DOCKER_NOT_INSTALLED: "Docker isn't installed. To continue, please install Docker by following the instructions provided at https://docs.docker.com/engine/install/.",
-    DOCKER_COMPOSE_NOT_INSTALLED: "Docker Compose isn't installed. To continue, please install Docker Compose by following the instructions provided at https://docs.docker.com/compose/install/"
+    DOCKER_NOT_INSTALLED: `${SERVICES_NAMES.DOCKER} isn't installed. To continue, please install ${SERVICES_NAMES.DOCKER} by following the instructions provided at https://docs.docker.com/engine/install/`,
+    DOCKER_COMPOSE_NOT_INSTALLED: `${SERVICES_NAMES.DOCKER_COMPOSE} isn't installed. To continue, please install ${SERVICES_NAMES.DOCKER_COMPOSE} by following the instructions provided at https://docs.docker.com/compose/install/`
 })
 
 export const TASKS = Object.freeze({
@@ -41,7 +42,9 @@ export const TASKS = Object.freeze({
 
     SPINNING_UP_CONTAINER: 'Spinning up all container(s)',
 
-    SHUTTINGDOWN: `Shutdown`
+    SHUTTINGDOWN: `Shutdown`,
+
+    CLEAN_ALL: "Cleaning up everything"
 
 })
 
@@ -66,7 +69,7 @@ export const LOG = Object.freeze({
     CLEAN_DESCRIPTION: `Stop and Delete ${SERVICES_NAMES.APP_NAME} configurations and data`,
 
     ALL_CONTAINERS_STOPPED: '🦄 All services has been stopped successfully',
-    ALL_CONTAINERS_CLEANED: '🦄 All services has been cleaned successfully',
+    ALL_CONTAINERS_CLEANED: '🦄 All services has been stopped and data directory was cleaned successfully',
 
     ALL_START_LOG : `
     ${SERVICES_NAMES.APP_NAME} is setup and running successfully

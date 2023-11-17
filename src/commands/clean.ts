@@ -85,9 +85,9 @@ export default class Clean extends Command {
       this.getTask(Messages.TASKS.REMOVE_IMAGES, () => { return servicesRmiTasks })
     ],  {concurrent: false},);
 
-    allTasks.run(Messages.LOG.ALL_CONTAINERS_CLEANED)
+    allTasks.run(Messages.TASKS.CLEAN_ALL)
     .then(() => {
-        this.log()
+        this.log(Messages.LOG.ALL_CONTAINERS_CLEANED)
     })
     .catch((err: any) => {
       console.error(err)

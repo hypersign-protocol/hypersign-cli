@@ -1,87 +1,66 @@
-import {Args, Command, Flags} from '@oclif/core'
+import { Command } from '@oclif/core'
 import dockerComponseTemplate from './docker-compose-template.json'
-import path from 'path'
-import fs from 'fs'
-
-const execa = require('execa')
+import { DockerCompose  } from '../dockerCompose'
 const Listr = require('listr')
+import { DependancyCheck } from '../dependencyCheck'
+import { DataDirManager } from '../dataDirManager'
+import * as Messages from '../messages'
 
-const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
-
+const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
 type Task = {title: string; task: Function}
+
 export default class Start extends Command {
-  static description = 'Start Hypersign issuer node infrastructure'
+  static description = Messages.LOG.START_DESCRIPTION
   static examples = ['<%= config.bin %> <%= command.id %>']
 
-  checkIfProcessInstalled(processName: string){
-    return execa(processName).catch(() => {
-      throw new Error('Docker is not installed. Please install Docker to proceeed ')
-    })
-  }
+  
 
-  dockerComposeUp(serviceName: string){
-    return execa('docker-compose', [
-      '-f',
-      dockerComposeFilePath,
-      'up',
-      '-d',
-      serviceName,
-    ])
-  }
-
-  dockerComposeDown(){
-    return execa('docker-compose', [
-      '-f',
-      dockerComposeFilePath,
-      'down'
-    ])
-  }
-
-  getTask(taskTitle: string, task: Function, serviceName?:string,): Task {
+  getTask(taskTitle: string, task: Function, flag?:string,): Task {
     return {
       title: taskTitle,
-      task: () => task(serviceName),
+      task: async () => await task(flag, dockerComposeFilePath),
     }
   }
 
   public async run(): Promise<void> {
-    let allTasks;
     
+    if(!DataDirManager.checkIfDataDirInitated().status){
+      throw new Error(Messages.ERRORS.NO_CONFIG_FOUND)
+    }
+
+    let allTasks;
     // Check required dependecies
     const checkingProcessesTasks = new Listr([
-      this.getTask(`Checking if docker is installed`, this.checkIfProcessInstalled, 'docker'),
-      this.getTask(`Checking if docker-compose is installed`, this.checkIfProcessInstalled, 'docker-compose')
+      this.getTask(Messages.TASKS.IF_DOCKER_INSTALLED, DependancyCheck.ifProcessInstalled, 'docker'),
+      this.getTask(Messages.TASKS.IF_DOCKER_COMPOSE_INSTALLED, DependancyCheck.ifProcessInstalled, 'docker-compose'),
+      this.getTask(Messages.TASKS.IF_DOCKER_DEAMON_RUNNING, DockerCompose.isDeamonRunning)
     ])
     
     // Shutdown running containers
     const containerDownTasks = new Listr([
-      this.getTask(`Shutdown`, this.dockerComposeDown)
+      this.getTask(Messages.TASKS.SHUTTINGDOWN, DockerCompose.down)
     ])
 
     // Restart containers one by one
     let services = Object.keys(dockerComponseTemplate.services)
     const allservicesUpTasks: Array<Task> = []
     services.forEach((service) => {
-      allservicesUpTasks.push(this.getTask(`Starting ${service} container`, this.dockerComposeUp, service))
+      allservicesUpTasks.push(this.getTask(`Starting ${service} container`, DockerCompose.up, service))
     })
     const servicesTasks = new Listr(allservicesUpTasks,  {concurrent: false})
     
 
     allTasks = new Listr([
-      this.getTask(`Checking all dependencies`, () => { return checkingProcessesTasks  }),
-      this.getTask(`Shutting down all container(s)`, () => { return containerDownTasks  }),
-      this.getTask(`Spinning up all container(s)`, () => { return servicesTasks  }),
+      this.getTask(Messages.TASKS.IF_ALL_DEPENDENCIES_INSTALLED, () => { return checkingProcessesTasks  }),
+      this.getTask(Messages.TASKS.SHUTTING_DOWN_CONTAINERS, () => { return containerDownTasks  }),
+      this.getTask(Messages.TASKS.SPINNING_UP_CONTAINER, () => { return servicesTasks  }),
     ],  {concurrent: false},);
 
     
     
     allTasks.run()
     .then(() => {
-        this.log('Hypersign Issuer Node is setup and running successfully')
-        this.log('  📟 Entity Dashboard UI     : http://localhost:9001/')
-        this.log('  📟 Entity Dashboard Serivce: http://localhost:3002/')
-        this.log('  📟 Mongo Database URI      : mongodb://localhost:27017/')
-        this.log('  📟 Tenant Url              : http://<tenant-subdomain>.localhost:8080/ssi')
+        this.log(Messages.LOG.ALL_START_LOG)
     })
     .catch((err: any) => {
       console.error(err)

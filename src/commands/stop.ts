@@ -1,50 +1,53 @@
-import {Args, Command, Flags} from '@oclif/core'
-import dockerComponseTemplate from './docker-compose-template.json'
-import path from 'path'
-import fs from 'fs'
-
-const execa = require('execa')
+import {Command} from '@oclif/core'
+import {DockerCompose } from '../dockerCompose'
+import * as Messages from '../messages'
 const Listr = require('listr')
+import { DataDirManager } from '../dataDirManager'
+import { DependancyCheck } from '../dependencyCheck'
 
-const dockerComposeFilePath = path.join(__dirname, 'docker-compose.yml')
-
+const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
 type Task = {title: string; task: Function}
+
 export default class Stop extends Command {
-  static description = 'Stop Hypersign issuer node infrastructure'
+  static description = Messages.LOG.STOP_DESCRIPTION
   static examples = ['<%= config.bin %> <%= command.id %>']
   
-  dockerComposeDown(){
-    return execa('docker-compose', [
-      '-f',
-      dockerComposeFilePath,
-      'down'
-    ])
-  }
-
-  getTask(taskTitle: string, task: Function, serviceName?:string,): Task {
+  getTask(taskTitle: string, task: Function, flag?: any): Task {
     return {
       title: taskTitle,
-      task: () => task(serviceName),
+      task: async () => await task(flag, dockerComposeFilePath),
     }
   }
 
+
   public async run(): Promise<void> {
-    let allTasks;
+    if(!DataDirManager.checkIfDataDirInitated().status){
+      throw new Error(Messages.ERRORS.NO_CONFIG_FOUND)
+    }
     
+    let allTasks;
+
+    const checkingProcessesTasks = new Listr([
+      this.getTask(Messages.TASKS.IF_DOCKER_INSTALLED, DependancyCheck.ifProcessInstalled, 'docker'),
+      this.getTask(Messages.TASKS.IF_DOCKER_COMPOSE_INSTALLED, DependancyCheck.ifProcessInstalled, 'docker-compose'),
+      this.getTask(Messages.TASKS.IF_DOCKER_DEAMON_RUNNING, DockerCompose.isDeamonRunning)
+    ])
+
     // Shutdown running containers
     const containerDownTasks = new Listr([
-      this.getTask(`Shutdown`, this.dockerComposeDown)
+      this.getTask(`Shutdown`, DockerCompose.down, 'stop')
     ])
 
     allTasks = new Listr([
-      this.getTask(`Shutting down all container(s)`, () => { return containerDownTasks  }),
+      this.getTask(Messages.TASKS.IF_ALL_DEPENDENCIES_INSTALLED , () => { return checkingProcessesTasks} ),
+      this.getTask(Messages.TASKS.SHUTTING_DOWN_CONTAINERS, () => { return containerDownTasks  }),
     ],  {concurrent: false},);
 
     
     
     allTasks.run()
     .then(() => {
-        this.log('All containers has been stopped successfully')
+        this.log(Messages.LOG.ALL_CONTAINERS_STOPPED)
     })
     .catch((err: any) => {
       console.error(err)

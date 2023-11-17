@@ -12,10 +12,10 @@ export const SERVICES_NAMES = Object.freeze({
 })
 
 export const ERRORS = Object.freeze({
-    NETWORK_NOT_SUPPOERTED: "Network not supported, supported networks ['testnet']",
-    NO_CONFIG_FOUND: "No configuration found, kindly run `studio-cli setup` command first.",
-    DOCKER_NOT_INSTALLED: "Docker is not installed, please install docker to proceed. https://docs.docker.com/engine/install/",
-    DOCKER_COMPOSE_NOT_INSTALLED: "Docker Compose is not installed, please install docker-compose to proceed. https://docs.docker.com/compose/install/"
+    NETWORK_NOT_SUPPOERTED: "The network is unsupported; only the 'testnet' network is supported.",
+    NO_CONFIG_FOUND: "There's no configuration detected. Please initiate the `studio-cli setup` command to set it up initially.",
+    DOCKER_NOT_INSTALLED: "Docker isn't installed. To continue, please install Docker by following the instructions provided at https://docs.docker.com/engine/install/.",
+    DOCKER_COMPOSE_NOT_INSTALLED: "Docker Compose isn't installed. To continue, please install Docker Compose by following the instructions provided at https://docs.docker.com/compose/install/"
 })
 
 export const TASKS = Object.freeze({
@@ -26,11 +26,11 @@ export const TASKS = Object.freeze({
     PULLING_STUDIO_SERVICE_CONFIG: `${SERVICES_NAMES.STUDIO_SERVICE} Configuration`,
     PULLING_STUDIO_UI_CONFIG: `${SERVICES_NAMES.STUDIO_UI} Configuration`,
 
-    IF_ALL_DEPENDENCIES_INSTALLED: "Checking all dependencies installed",
-    SETTING_SERVIES_CONFIG: `Setting all services configurations`,
-    SHUTTING_DOWN_CONTAINERS: `Shutting down all container(s)`,
+    IF_ALL_DEPENDENCIES_INSTALLED: "Verifying the installation status of all dependencies",
+    SETTING_SERVIES_CONFIG: `Configuring all service settings`,
+    SHUTTING_DOWN_CONTAINERS: `Stopping all service instances.`,
     DELETE_VOLUMES: "Deleting associated volumes",
-    REMOVE_IMAGES: "Removing images",
+    REMOVE_IMAGES: "Removing associated images",
 
     HID_NODE_CONFIG: `Hypersign Node Configuration`,
 
@@ -47,9 +47,9 @@ export const TASKS = Object.freeze({
 
 export const PROMPTS = Object.freeze({
     CHOOSE_MNEMONIC : "Choose mnemonic setup",
-    WANT_EDV_SERVICE_Q : "Do you want to setup Encrypted Data Vault service?",
-    CONFIGURATION_ALREADY_EXISTS_Q: "WARNING Configuration already exists, this action will erase all your existing configuration, do you still want to continue?",
-    ABOUT_TO_DELETE_ALL_CONFIG_Q: 'WARNING You are about to delete all your configurations, do you still want to continue?',
+    WANT_EDV_SERVICE_Q : "Would you like to configure the Encrypted Data Vault service?",
+    CONFIGURATION_ALREADY_EXISTS_Q: "WARNING The current configuration already exists. Continuing will erase all existing configurations. Are you sure you want to proceed?",
+    ABOUT_TO_DELETE_ALL_CONFIG_Q: 'WARNING Are you sure you want to proceed with deleting all your configurations, services, images, volumes, and other related data?',
     SELECT_NETWORK: 'Select Hypersign network',
     ENTER_WORDS_MNEMONIC: '  Enter 24 words mnemonic',
 })
@@ -57,16 +57,16 @@ export const PROMPTS = Object.freeze({
 
 export const LOG = Object.freeze({
     ALL_CONFIG_SUCCESS : `
-    🦄 All configurations setup successfully!
-    🦄 You may run the 'studio-cli start' command to start your services.
+    🦄 All configurations have been successfully established!
+    🦄 Execute the 'studio-cli start' command to initiate your services.
     `,
-    SETUP_DESCRIPTION: 'Setup configurations for Hypersign issuer node infrastructure',
-    START_DESCRIPTION: 'Start Hypersign issuer node infrastructure',
-    STOP_DESCRIPTION: 'Stop Hypersign issuer node infrastructure',
-    CLEAN_DESCRIPTION: 'Stop and Delete Hypersign issuer node infrastructure',
+    SETUP_DESCRIPTION: `Setup configurations for ${SERVICES_NAMES.APP_NAME}`,
+    START_DESCRIPTION: `Start ${SERVICES_NAMES.APP_NAME}`,
+    STOP_DESCRIPTION: `Stop ${SERVICES_NAMES.APP_NAME}`,
+    CLEAN_DESCRIPTION: `Stop and Delete ${SERVICES_NAMES.APP_NAME} configurations and data`,
 
-    ALL_CONTAINERS_STOPPED: '🦄 All containers has been stopped successfully',
-    ALL_CONTAINERS_CLEANED: '🦄 All containers has been cleaned successfully',
+    ALL_CONTAINERS_STOPPED: '🦄 All services has been stopped successfully',
+    ALL_CONTAINERS_CLEANED: '🦄 All services has been cleaned successfully',
 
     ALL_START_LOG : `
     ${SERVICES_NAMES.APP_NAME} is setup and running successfully

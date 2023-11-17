@@ -92,7 +92,7 @@
     "installer:win": "oclif pack win",
     "installer:deb": "oclif pack deb"
   },
-  "version": "0.0.1",
+  "version": "0.1.0-alpha",
   "bugs": "https://github.com/hypersign-protocol/hypersign-cli/issues",
   "keywords": [
     "oclif"

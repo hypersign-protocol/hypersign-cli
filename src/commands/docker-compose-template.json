@@ -26,8 +26,8 @@
                 "mongo"
             ]
         },
-        "ssi-api": {
-            "container_name": "ssi-api",
+        "entity-api-service": {
+            "container_name": "entity-api-service",
             "image": "ghcr.io/hypersign-protocol/studio-api:latest",
             "environment": {
                 "PORT": 3001,
@@ -53,21 +53,21 @@
                 "edv"
             ]
         },
-        "ssi-api-proxy": {
-            "container_name": "ssi-api-proxy",
+        "entity-api-service-proxy": {
+            "container_name": "entity-api-service-proxy",
             "image": "nginx:latest",
             "ports": [
                 "8080:8080"
             ],
             "depends_on": [
-                "ssi-api"
+                "entity-api-service"
             ],
             "volumes": [
                 "./nginx/nginx.conf:/etc/nginx/nginx.conf"
             ]
         },
-        "studio": {
-            "container_name": "studio",
+        "entity-developer-dashboard-service": {
+            "container_name": "entity-developer-dashboard-service",
             "image": "ghcr.io/hypersign-protocol/studio-server-new:latest",
             "ports": [
                 "3002:3002"
@@ -94,14 +94,14 @@
                 "edv"
             ]
         },
-        "studio-ui": {
-            "container_name": "studio-ui",
+        "entity-developer-dashboard": {
+            "container_name": "entity-developer-dashboard",
             "build": {
                 "context": "./studio-frontend",
                 "dockerfile": "Dockerfile",
                 "args": [
-                    "VUE_APP_TITLE=Entity Studio 3",
-                    "VUE_APP_DESC=A portal to issue and verify credentials on Hypersign Identity network!",
+                    "VUE_APP_TITLE=Entity Developer Dashboard",
+                    "VUE_APP_DESC=A dashboard for developers to manage their tenants and API keys",
                     "VUE_APP_VERSION=v1.0",
                     "VUE_APP_STUDIO_SERVER_BASE_URL=http://localhost:3002/",
                     "VUE_APP_STUDIO_SERVER_BASE_WS=ws://localhost:3002/",

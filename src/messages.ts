@@ -1,20 +1,22 @@
 export const SERVICES_NAMES = Object.freeze({
     DB_SERVICE: 'Mongo DB Service',
+    HID_NETWORK: 'Hypersign ID Network',
     EDV_SERVICE: 'Hypersign Encrypted Data Vault (EDV) Service',
-    SSI_API_SERVICE: 'Hypersign SSI API Service',
-    SSI_API_PROXY_SERVICE: 'Hypersign SSI API Proxy Service',
-    STUDIO_SERVICE: 'Hypersign Studio Dashboard Service',
-    STUDIO_UI: 'Hypersign Studio Dashboard',
+    SSI_API_SERVICE: 'Entity API Service',
+    SSI_API_PROXY_SERVICE: 'Entity API Service Proxy',
+    STUDIO_SERVICE: 'Entity Developer Dashboard Service',
+    STUDIO_UI: 'Entity Developer Dashboard',
     APP_NAME: "Hypersign SSI Infrastructure",
     TENANT_URL_API_DASH_FORMAT: 'Tenant URL Swagger API',
     DOCKER: 'docker',
     DOCKER_COMPOSE: 'docker compose',
     WORKDIRNAME: '.hypersign-ssi',
+    CLI_NAME: 'hypersign-ssi'
 })
 
 export const ERRORS = Object.freeze({
     NETWORK_NOT_SUPPOERTED: "The network is unsupported; only the 'testnet' network is supported.",
-    NO_CONFIG_FOUND: "There's no configuration detected. Please initiate the `studio-cli setup` command to set it up initially.",
+    NO_CONFIG_FOUND: `There's no configuration detected. Please initiate the '${SERVICES_NAMES.CLI_NAME} setup' command to set it up initially.`,
     DOCKER_NOT_INSTALLED: `${SERVICES_NAMES.DOCKER} isn't installed. To continue, please install ${SERVICES_NAMES.DOCKER} by following the instructions provided at https://docs.docker.com/engine/install/`,
     DOCKER_COMPOSE_NOT_INSTALLED: `${SERVICES_NAMES.DOCKER_COMPOSE} isn't installed. To continue, please install ${SERVICES_NAMES.DOCKER_COMPOSE} by following the instructions provided at https://docs.docker.com/compose/install/`
 })
@@ -33,7 +35,7 @@ export const TASKS = Object.freeze({
     DELETE_VOLUMES: "Deleting associated volumes",
     REMOVE_IMAGES: "Removing associated images",
 
-    HID_NODE_CONFIG: `Hypersign Node Configuration`,
+    HID_NODE_CONFIG: `${SERVICES_NAMES.HID_NETWORK} Configuration`,
 
     CLEAN_WORKDIR: 'Cleaning working directories',
     IF_DOCKER_INSTALLED: `Checking if ${SERVICES_NAMES.DOCKER} is installed`,
@@ -61,7 +63,7 @@ export const PROMPTS = Object.freeze({
 export const LOG = Object.freeze({
     ALL_CONFIG_SUCCESS : `
     🦄 All configurations have been successfully established!
-    🦄 Execute the 'studio-cli start' command to initiate your services.
+    🦄 Execute the '${SERVICES_NAMES.CLI_NAME} start' command to initiate your services.
     `,
     SETUP_DESCRIPTION: `Setup configurations for ${SERVICES_NAMES.APP_NAME}`,
     START_DESCRIPTION: `Start ${SERVICES_NAMES.APP_NAME}`,

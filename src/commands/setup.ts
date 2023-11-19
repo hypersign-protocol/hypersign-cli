@@ -127,36 +127,36 @@ export default class Setup extends Command {
       this.configParams.secrets.sessionSecret = randomUUID() //flags.sessionSecret ? flags.sessionSecret: dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY;
       
       {
-        dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
-        dockerComponseTemplate.services['ssi-api'].environment.MNEMONIC = this.configParams.ssi.mnemonic
-        dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
-        dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
-        dockerComponseTemplate.services['ssi-api'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
+        dockerComponseTemplate.services['entity-api-service'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
+        dockerComponseTemplate.services['entity-api-service'].environment.MNEMONIC = this.configParams.ssi.mnemonic
+        dockerComponseTemplate.services['entity-api-service'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
+        dockerComponseTemplate.services['entity-api-service'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
+        dockerComponseTemplate.services['entity-api-service'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
 
         if(!this.configParams.hidNode.isHidNodeSetup){
-          dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
-          dockerComponseTemplate.services['ssi-api'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+          dockerComponseTemplate.services['entity-api-service'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
+          dockerComponseTemplate.services['entity-api-service'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
         }
     
         if(!this.configParams.edv.isEdvSetup) {
-          dockerComponseTemplate.services['ssi-api'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
+          dockerComponseTemplate.services['entity-api-service'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
         }
       }
 
       {
-        dockerComponseTemplate.services['studio'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
-        dockerComponseTemplate.services['studio'].environment.MNEMONIC = this.configParams.ssi.mnemonic
-        dockerComponseTemplate.services['studio'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
-        dockerComponseTemplate.services['studio'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
-        dockerComponseTemplate.services['studio'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
+        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
+        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.MNEMONIC = this.configParams.ssi.mnemonic
+        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
+        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
+        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
 
         if(!this.configParams.hidNode.isHidNodeSetup){
-          dockerComponseTemplate.services['studio'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
-          dockerComponseTemplate.services['studio'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+          dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
+          dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
         }
     
         if(!this.configParams.edv.isEdvSetup) {
-          dockerComponseTemplate.services['studio'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
+          dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
         }
       }
 
@@ -218,10 +218,10 @@ export default class Setup extends Command {
 
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_MONGO_CONFIG, DockerCompose.pull, 'mongo'))
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_EDV_CONFIG, DockerCompose.pull, 'edv'))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_CONFIG, DockerCompose.pull, 'ssi-api'))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_PROXY_CONFIG, DockerCompose.pull, 'ssi-api-proxy'))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_SERVICE_CONFIG, DockerCompose.pull, 'studio'))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_UI_CONFIG, DockerCompose.build, 'studio-ui'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_CONFIG, DockerCompose.pull, 'entity-api-service'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_PROXY_CONFIG, DockerCompose.pull, 'entity-api-service-proxy'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_SERVICE_CONFIG, DockerCompose.pull, 'entity-developer-dashboard-service'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_UI_CONFIG, DockerCompose.build, 'entity-developer-dashboard'))
 
     { 
       const dockerTasks = new Listr(this.tasks, {concurrent: true})

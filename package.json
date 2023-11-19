@@ -49,15 +49,15 @@
   "name": "hypersign-ssi",
   "oclif": {
     "macos": {
-      "identifier": "hypersign.id.studio.cli",
+      "identifier": "hypersign.cli",
       "version": "0.1.0-alpha"
     },
     "win": {
-      "identifier": "hypersign.id.studio.cli",
+      "identifier": "hypersign.cli",
       "version": "0.1.0-alpha"
     },
     "deb": {
-      "identifier": "hypersign.id.studio.cli",
+      "identifier": "hypersign.cli",
       "version": "0.1.0-alpha"
     },
     "bin": "hypersign-ssi",

@@ -8,6 +8,7 @@ import { DockerCompose  } from '../dockerCompose'
 import { DependancyCheck } from '../dependencyCheck';
 import { DataDirManager } from '../dataDirManager'
 const Listr = require('listr')
+import path from 'path'
 import * as Messages from '../messages'
 type Task = {title: string; task: Function}
 
@@ -141,27 +142,37 @@ export default class Setup extends Command {
         if(!this.configParams.edv.isEdvSetup) {
           dockerComponseTemplate.services['entity-api-service'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
         }
+
+        dockerComponseTemplate.services['entity-api-service'].environment.EDV_CONFIG_DIR = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.API_EDV_CONFIG_DIR) 
+        dockerComponseTemplate.services['entity-api-service'].environment.EDV_DID_FILE_PATH = path.join(dockerComponseTemplate.services['entity-api-service'].environment.EDV_CONFIG_DIR, 'edv-did.json')
+        dockerComponseTemplate.services['entity-api-service'].environment.EDV_KEY_FILE_PATH = path.join(dockerComponseTemplate.services['entity-api-service'].environment.EDV_CONFIG_DIR, 'edv-keys.json')
       }
-
-      {
-        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
-        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.MNEMONIC = this.configParams.ssi.mnemonic
-        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
-        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
-        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
-
-        if(!this.configParams.hidNode.isHidNodeSetup){
-          dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
-          dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
-        }
-    
-        if(!this.configParams.edv.isEdvSetup) {
-          dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
-        }
-      }
-
-      
     }
+  }
+
+
+  async setupDashboardServiceConfig(){
+    {
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.MNEMONIC = this.configParams.ssi.mnemonic
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
+
+      if(!this.configParams.hidNode.isHidNodeSetup){
+        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
+        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+      }
+  
+      if(!this.configParams.edv.isEdvSetup) {
+        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
+      }
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.EDV_CONFIG_DIR = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.DASHBOARD_SERVICE_EDV_CONFIG_DIR)  
+    }
+  }
+
+  async setupEDVConfig(){
+    dockerComponseTemplate.services['edv'].environment.DATA_VAULT = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.EDV_DATA_DIR)  
   }
 
   getTask(taskTitle: string, task: Function, flag?: any): Task {
@@ -212,6 +223,8 @@ export default class Setup extends Command {
     
     await this.setupConfigurationForHidNode()
     await this.setupConfigurationForSSIAPI()
+    await this.setupDashboardServiceConfig()
+    await this.setupEDVConfig()
     
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
     await fs.writeFileSync(dockerComposeFilePath, dockerCompose)

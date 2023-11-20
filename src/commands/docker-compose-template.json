@@ -28,7 +28,7 @@
         },
         "entity-api-service": {
             "container_name": "entity-api-service",
-            "image": "ghcr.io/hypersign-protocol/studio-api:latest",
+            "image": "ghcr.io/hypersign-protocol/entity-api-service:latest",
             "environment": {
                 "PORT": 3001,
                 "ENTITY_API_SERVICE_BASE_URL": "http://localhost:8080/",
@@ -68,13 +68,15 @@
         },
         "entity-developer-dashboard-service": {
             "container_name": "entity-developer-dashboard-service",
-            "image": "ghcr.io/hypersign-protocol/studio-server-new:latest",
+            "image": "ghcr.io/hypersign-protocol/entity-developer-dashboard-service:latest",
             "ports": [
                 "3002:3002"
             ],
             "environment": {
                 "PORT": 3002,
                 "DATABASE_CONNECTION_PATH": "mongodb://mongo:27017/api?retryWrites=true&w=majority",
+                "DEVELOPER_DASHBOARD_SERVICE_PUBLIC_EP": "http://localhost:3002",
+                "EMAIL_CREDENTITAL_SCHEMA_ID":"sch:hid:testnet:zufjU7LuQuJNFiUpuhCwYkTrakUu1VmtxE9SPi5TwfUB:1.0",
                 "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
                 "HID_NETWORK_API": "https://api.jagrat.hypersign.id/",
                 "HID_NETWORK_NAMESPACE": "testnet",
@@ -107,16 +109,8 @@
                     "VUE_APP_STUDIO_SERVER_BASE_WS=ws://localhost:3002/",
                     "VUE_APP_NODE_SERVER_BASE_URL=https://rpc.jagrat.hypersign.id/",
                     "VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.jagrat.hypersign.id/",
-                    "VUE_APP_SCHEMA_GET_EP_REST=hypersign-protocol/hidnode/ssi/schema/",
-                    "VUE_APP_ACCPCT_CRED_EP=api/v1/credential/send",
                     "VUE_APP_EXPLORER_BASE_URL=https://explorer.hypersign.id/",
-                    "VUE_APP_STUDIO_SERVER_SAVE_SCHEMA=api/v1/schema",
-                    "VUE_APP_SCHEMA_LIST_EP=api/v1/schema",
-                    "VUE_APP_STUDIO_SERVER_CRED_LIST_EP=api/v1/credential/org",
-                    "VUE_APP_STUDIO_SERVER_CRED_ISSUE_EP=api/v1/credential",
-                    "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id",
-                    "VUE_APP_PRESENTATION_TEMPLATE_EP=api/v1/presentation/template",
-                    "VUE_APP_SSE=http://localhost:9000/"
+                    "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id"
                 ]
             },
             "ports": [

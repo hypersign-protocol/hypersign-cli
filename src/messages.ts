@@ -11,7 +11,10 @@ export const SERVICES_NAMES = Object.freeze({
     DOCKER: 'docker',
     DOCKER_COMPOSE: 'docker compose',
     WORKDIRNAME: '.hypersign-ssi',
-    CLI_NAME: 'hypersign-ssi'
+    CLI_NAME: 'hypersign-ssi',
+    EDV_DATA_DIR:'edv-data',
+    API_EDV_CONFIG_DIR: "api-edv-config",
+    DASHBOARD_SERVICE_EDV_CONFIG_DIR: "dashboard-edv-config"
 })
 
 export const ERRORS = Object.freeze({

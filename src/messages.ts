@@ -100,6 +100,7 @@ export const PROMPTS = Object.freeze({
     ABOUT_TO_DELETE_ALL_CONFIG_Q: 'WARNING Are you sure you want to proceed with deleting all your configurations, services, images, volumes, and other related data?',
     SELECT_NETWORK: 'Select Hypersign network',
     ENTER_WORDS_MNEMONIC: '  Enter 24 words mnemonic',
+    CHOOSE_SERVICES: 'Select one or more services'
 })
 
 
@@ -124,6 +125,17 @@ export const LOG = Object.freeze({
         📟 ${SERVICES_NAMES.DB_SERVICE.name} : mongodb://localhost:27017/
         📟 ${SERVICES_NAMES.TENANT_URL_API_DASH_FORMAT} : http://<tenant-subdomain>.localhost:8080/ssi
     `,
+    SERVICES_START_LOG: `
+    ${SERVICES_NAMES.APP_NAME} is setup and running successfully`,
+    DEVELOPER_DASH_START_LOG: ` 
+        📟 ${SERVICES_NAMES.DEVELOPER_UI.name} : http://localhost:9001/
+        📟 ${SERVICES_NAMES.DEVELOPER_SERVICE.name} : http://localhost:3002/`,
+    STUDIO_DASH_START_LOG: `
+        📟 ${SERVICES_NAMES.STUDIO_PLAYGROUND_UI.name} : http://localhost:9002/`,
+    API_SERVICE_START_LOG: `
+        📟 ${SERVICES_NAMES.TENANT_URL_API_DASH_FORMAT} : http://<tenant-subdomain>.localhost:8080/ssi`,
+    DB_SERVICE_START_LOG: `
+        📟 ${SERVICES_NAMES.DB_SERVICE.name} : mongodb://localhost:27017/`
 })
 
 

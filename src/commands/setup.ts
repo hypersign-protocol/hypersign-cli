@@ -1,5 +1,5 @@
 import { Command, Flags, ux} from '@oclif/core'
-import  dockerComponseTemplate from './docker-compose-template.json'
+import  DockerComponseTemplate from './docker-compose-template.json'
 const YAMLFormatter = require('json-to-pretty-yaml');
 import fs from 'fs';
 const { DirectSecp256k1HdWallet } = require('@cosmjs/proto-signing');
@@ -10,9 +10,11 @@ import { DataDirManager } from '../dataDirManager'
 const Listr = require('listr')
 import path from 'path'
 import * as Messages from '../messages'
+import { SecretManager } from '../secretManager'
 type Task = {title: string; task: Function}
-
 const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH 
+const dockerComponseTemplateStr = JSON.stringify({ ...DockerComponseTemplate })
+const dockerComponseTemplate = JSON.parse(dockerComponseTemplateStr)
 
 export default class Setup extends Command {
   static description = Messages.LOG.SETUP_DESCRIPTION
@@ -134,24 +136,24 @@ export default class Setup extends Command {
       this.configParams.secrets.sessionSecret = credentials.sessionSecret //flags.sessionSecret ? flags.sessionSecret: dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY;
       
       {
-        dockerComponseTemplate.services['entity-api-service'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
-        dockerComponseTemplate.services['entity-api-service'].environment.MNEMONIC = this.configParams.ssi.mnemonic
-        dockerComponseTemplate.services['entity-api-service'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
-        dockerComponseTemplate.services['entity-api-service'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
-        dockerComponseTemplate.services['entity-api-service'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.MNEMONIC = this.configParams.ssi.mnemonic
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
 
         if(!this.configParams.hidNode.isHidNodeSetup){
-          dockerComponseTemplate.services['entity-api-service'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
-          dockerComponseTemplate.services['entity-api-service'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+          dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
+          dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
         }
     
         if(!this.configParams.edv.isEdvSetup) {
-          dockerComponseTemplate.services['entity-api-service'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
+          dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
         }
 
-        dockerComponseTemplate.services['entity-api-service'].environment.EDV_CONFIG_DIR = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.API_EDV_CONFIG_DIR) 
-        dockerComponseTemplate.services['entity-api-service'].environment.EDV_DID_FILE_PATH = path.join(dockerComponseTemplate.services['entity-api-service'].environment.EDV_CONFIG_DIR, 'edv-did.json')
-        dockerComponseTemplate.services['entity-api-service'].environment.EDV_KEY_FILE_PATH = path.join(dockerComponseTemplate.services['entity-api-service'].environment.EDV_CONFIG_DIR, 'edv-keys.json')
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.EDV_CONFIG_DIR = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.API_EDV_CONFIG_DIR) 
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.EDV_DID_FILE_PATH = path.join(dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.EDV_CONFIG_DIR, 'edv-did.json')
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.EDV_KEY_FILE_PATH = path.join(dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar].environment.EDV_CONFIG_DIR, 'edv-keys.json')
       }
     }
   }
@@ -160,34 +162,34 @@ export default class Setup extends Command {
   async setupDashboardServiceConfig(secretManager: SecretManager){
     {
       const credentials = secretManager.getCredentials()
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.JWT_SECRET = credentials.jwtSecret
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.MNEMONIC = credentials.mnemonic
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SESSION_SECRET_KEY = credentials.sessionSecret
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_PASSWORD = credentials.superAdminPassword
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
+      dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.JWT_SECRET = credentials.jwtSecret
+      dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.MNEMONIC = credentials.mnemonic
+      dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.SESSION_SECRET_KEY = credentials.sessionSecret
+      dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.SUPER_ADMIN_PASSWORD = credentials.superAdminPassword
+      dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
 
       if(!this.configParams.hidNode.isHidNodeSetup){
-        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
-        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
       }
   
       if(!this.configParams.edv.isEdvSetup) {
-        dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
+        dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
       }
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.EDV_CONFIG_DIR = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.DASHBOARD_SERVICE_EDV_CONFIG_DIR)  
+      dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.EDV_CONFIG_DIR = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.DASHBOARD_SERVICE_EDV_CONFIG_DIR)  
     }
   }
 
   async setupEDVConfig(secretManager: SecretManager){
-    dockerComponseTemplate.services['edv'].environment.DATA_VAULT = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.EDV_DATA_DIR)  
+    dockerComponseTemplate.services[Messages.SERVICES_NAMES.EDV_SERVICE.monikar].environment.DATA_VAULT = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.EDV_DATA_DIR)  
   }
 
   async setupStudioDashboardServiceConfig(secretManager: SecretManager){
     const credentials = secretManager.getCredentials()
-    dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.JWT_SECRET = credentials.jwtSecret
+    dockerComponseTemplate.services[Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_SERVICE.monikar].environment.JWT_SECRET = credentials.jwtSecret
     if(!this.configParams.hidNode.isHidNodeSetup){
-      dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
-      dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+      dockerComponseTemplate.services[Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_SERVICE.monikar].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
+      dockerComponseTemplate.services[Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_SERVICE.monikar].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
     }
   }
 
@@ -209,12 +211,9 @@ export default class Setup extends Command {
   public async run(): Promise<void> {   
     try {
 
-   
-
+    const { default: inquirer } = await import("inquirer")
     if(DataDirManager.checkIfDataDirInitated().status){
-
       const { flags } = await this.parse(Setup)
-      const { default: inquirer } = await import("inquirer")
       let configAlreayExists = flags.configAlreayExists
       if(!configAlreayExists) {
         let response: any = await inquirer.prompt([{
@@ -225,14 +224,10 @@ export default class Setup extends Command {
         }])
         configAlreayExists = response.configAlreayExists
       }
-
       if(!configAlreayExists){
        return
       } 
     }
-
-    const secretManager = SecretManager.getInstance()
-    await secretManager.init();
 
     const checkingProcessesTasks = new Listr([
       this.getTask(Messages.TASKS.IF_DOCKER_INSTALLED, DependancyCheck.ifProcessInstalled, Messages.SERVICES_NAMES.DOCKER),
@@ -240,27 +235,93 @@ export default class Setup extends Command {
       this.getTask(Messages.TASKS.IF_DOCKER_DEAMON_RUNNING, DockerCompose.isDeamonRunning)
     ])
     
+    
+    const servicesToRun = await inquirer.prompt([{
+      type: 'checkbox',
+      name: 'selectedOptions',
+      message: Messages.PROMPTS.CHOOSE_SERVICES,
+      choices: [
+        // { name: Messages.SERVICES_NAMES.EDV_SERVICE.name, value: Messages.SERVICES_NAMES.EDV_SERVICE.monikar },
+        { name: Messages.SERVICES_NAMES.DEVELOPER_UI.name, value: Messages.SERVICES_NAMES.DEVELOPER_UI.monikar },
+        { name: Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_UI.name, value: Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_UI.monikar },
+        { name: Messages.SERVICES_NAMES.SSI_API_SERVICE.name, value: Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar },
+        { name: 'All' },
+      ],
+    }])
+
+    // Will run all service if skipped
+    if(servicesToRun.selectedOptions.length == 0){
+      servicesToRun.selectedOptions.push('All')
+    }
+
+    const servicesList = {
+      
+    } as any
+    servicesToRun.selectedOptions.forEach((serviceMonikar: string) => {
+      servicesList[serviceMonikar] = true;
+    });
+
+    const secretManager = SecretManager.getInstance()
+    await secretManager.init();
+   
     await this.setupConfigurationForHidNode()
     await this.setupMnemonic(secretManager)
-    await this.setupConfigurationForSSIAPI(secretManager)
-    await this.setupDashboardServiceConfig(secretManager)
-    await this.setupEDVConfig(secretManager)
-    await this.setupStudioDashboardServiceConfig(secretManager)
 
-    
+    if(servicesList['All'] || servicesList[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar]) {
+      await this.setupConfigurationForSSIAPI(secretManager)
+    } else {
+      delete dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar]
+      delete dockerComponseTemplate.services[Messages.SERVICES_NAMES.SSI_API_PROXY_SERVICE.monikar]
+    }
+
+    if(servicesList['All'] || servicesList[Messages.SERVICES_NAMES.DEVELOPER_UI.monikar]) {
+      await this.setupDashboardServiceConfig(secretManager)
+    } else {
+      delete dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_UI.monikar]
+      delete dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar]
+    }
+   
+    // if(servicesList[Messages.SERVICES_NAMES.EDV_SERVICE.monikar]) {
+    //   await this.setupEDVConfig(secretManager)  
+    // } else {
+    //   delete dockerComponseTemplate.services[Messages.SERVICES_NAMES.EDV_SERVICE.monikar]
+    // }
+    await this.setupEDVConfig(secretManager)
+  
+    if(servicesList['All'] || servicesList[Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_UI.monikar]) {
+      await this.setupStudioDashboardServiceConfig(secretManager)
+    } else {
+      delete dockerComponseTemplate.services[Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_SERVICE.monikar]
+      delete dockerComponseTemplate.services[Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_UI.monikar]
+    }
+
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
     await fs.writeFileSync(dockerComposeFilePath, dockerCompose)
 
+    
+    // db and edv service is mandatory
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_MONGO_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.DB_SERVICE.monikar))
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_EDV_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.EDV_SERVICE.monikar))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_PROXY_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.SSI_API_PROXY_SERVICE.monikar))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_DEVELOPER_SERVICE_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_DEVELOPER_UI_CONFIG, DockerCompose.build, Messages.SERVICES_NAMES.DEVELOPER_UI.monikar))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_SERVICE_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_SERVICE.monikar))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_UI_CONFIG, DockerCompose.build, Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_UI.monikar))
 
-
+    // if(servicesList[Messages.SERVICES_NAMES.EDV_SERVICE.monikar]) {
+    //   this.tasks.push(this.getTask(Messages.TASKS.PULLING_EDV_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.EDV_SERVICE.monikar))
+    // }
+    
+    if(servicesList['All'] || servicesList[Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar]) {
+      this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar))
+      this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_PROXY_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.SSI_API_PROXY_SERVICE.monikar))
+    }
+    
+    if(servicesList['All'] || servicesList[Messages.SERVICES_NAMES.DEVELOPER_UI.monikar]) {
+      this.tasks.push(this.getTask(Messages.TASKS.PULLING_DEVELOPER_SERVICE_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar))
+      this.tasks.push(this.getTask(Messages.TASKS.PULLING_DEVELOPER_UI_CONFIG, DockerCompose.build, Messages.SERVICES_NAMES.DEVELOPER_UI.monikar))
+    }
+    
+    if(servicesList['All'] || servicesList[Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_UI.monikar]) {
+      this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_SERVICE_CONFIG, DockerCompose.pull, Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_SERVICE.monikar))
+      this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_UI_CONFIG, DockerCompose.build, Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_UI.monikar))    
+    }
+    
     { 
       const dockerTasks = new Listr(this.tasks, {concurrent: true})
       const allTasks = new Listr([
@@ -268,7 +329,7 @@ export default class Setup extends Command {
         this.getTask(Messages.TASKS.SETTING_SERVIES_CONFIG, () => { return dockerTasks  }),
       ],  {concurrent: false},);
 
-      ux.action.start('Finalizing ')
+      ux.action.start('Please wait ')
       allTasks.run()
       .then(async () => {
         ux.action.stop() 

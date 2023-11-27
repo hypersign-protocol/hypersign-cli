@@ -1,11 +1,11 @@
 import {Command, Flags} from '@oclif/core'
-import dockerComponseTemplate from './docker-compose-template.json'
 import { DockerCompose } from '../dockerCompose'
 import { DependancyCheck } from '../dependencyCheck'
 import * as Messages from '../messages'
 const Listr = require('listr')
 import { DataDirManager } from '../dataDirManager'
-
+const yaml = require('js-yaml');
+// import dockerComponseTemplate from './docker-compose-template.json'
 const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
 type Task = {title: string; task: Function}
 
@@ -62,10 +62,14 @@ export default class Clean extends Command {
       this.getTask(Messages.TASKS.IF_DOCKER_DEAMON_RUNNING, DockerCompose.isDeamonRunning)
     ])
   
+    const dockerYml = await DataDirManager.readFileSync()
+    const dockerComponseTemplate = yaml.load(dockerYml)
+
     let services = Object.keys(dockerComponseTemplate.services)
     const allservicesRmiTasks: Array<Task> = []
-    services.forEach((service) => {
-      allservicesRmiTasks.push(this.getTask(`Removing ${service} image`, DockerCompose.rmi, service))
+    services.forEach((service: any) => {
+      const image  = dockerComponseTemplate.services[service]['image']
+      allservicesRmiTasks.push(this.getTask(`Removing ${ image } image`, DockerCompose.rmi, image))
     })
     const servicesRmiTasks = new Listr(allservicesRmiTasks,  {concurrent: false})
     
@@ -75,14 +79,14 @@ export default class Clean extends Command {
     ])
 
     const delayedTasks = new Listr([
-      this.getTask(Messages.TASKS.CLEAN_WORKDIR, DataDirManager.cleanWorkDir),
-      // this.getTask(`Cleaning volumes`, this.delayedTask)
+       this.getTask(`Cleaning volumes`, this.delayedTask),
+       this.getTask(Messages.TASKS.CLEAN_WORKDIR, DataDirManager.cleanWorkDir)
     ])
     allTasks = new Listr([
       this.getTask(Messages.TASKS.IF_ALL_DEPENDENCIES_INSTALLED, () => { return checkingProcessesTasks} ),
       this.getTask(Messages.TASKS.SHUTTING_DOWN_CONTAINERS, () => { return containerDownTasks  }),
+      this.getTask(Messages.TASKS.REMOVE_IMAGES, () => { return servicesRmiTasks }),
       this.getTask(Messages.TASKS.DELETE_VOLUMES, () => { return delayedTasks  }),
-      this.getTask(Messages.TASKS.REMOVE_IMAGES, () => { return servicesRmiTasks })
     ],  {concurrent: false},);
 
     allTasks.run(Messages.TASKS.CLEAN_ALL)

@@ -113,6 +113,7 @@
                     "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id"
                 ]
             },
+            "image": "hypersign-protocol/entity-developer-dashboard:latest",
             "ports": [
                 "9001:80"
             ]
@@ -166,6 +167,7 @@
                 "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id"
               ]
             },
+            "image": "hypersign-protocol/entity-studio-dashboard:latest",
             "ports": [
               "9002:80"
             ]

@@ -1,10 +1,10 @@
 import { Command } from '@oclif/core'
-import dockerComponseTemplate from './docker-compose-template.json'
 import { DockerCompose  } from '../dockerCompose'
 const Listr = require('listr')
 import { DependancyCheck } from '../dependencyCheck'
 import { DataDirManager } from '../dataDirManager'
 import * as Messages from '../messages'
+const yaml = require('js-yaml');
 
 const dockerComposeFilePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH
 type Task = {title: string; task: Function}
@@ -28,6 +28,8 @@ export default class Start extends Command {
       throw new Error(Messages.ERRORS.NO_CONFIG_FOUND)
     }
 
+    const dockerYml = await DataDirManager.readFileSync()
+    const dockerComponseTemplate = yaml.load(dockerYml)
     let allTasks;
     // Check required dependecies
     const checkingProcessesTasks = new Listr([
@@ -60,7 +62,26 @@ export default class Start extends Command {
     
     allTasks.run()
     .then(() => {
-        this.log(Messages.LOG.ALL_START_LOG)
+      let messages = Messages.LOG.SERVICES_START_LOG
+      services.forEach((service) => {
+        if(service == Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar){
+          messages += Messages.LOG.DEVELOPER_DASH_START_LOG 
+        }
+
+        if(service == Messages.SERVICES_NAMES.DB_SERVICE.monikar){
+          messages += Messages.LOG.DB_SERVICE_START_LOG
+        }
+
+        if(service == Messages.SERVICES_NAMES.STUDIO_PLAYGROUND_UI.monikar){
+          messages +=  Messages.LOG.STUDIO_DASH_START_LOG
+        }
+
+        if(service == Messages.SERVICES_NAMES.SSI_API_SERVICE.monikar){
+          messages +=  Messages.LOG.API_SERVICE_START_LOG
+        }
+      })
+
+      this.log(messages)
     })
     .catch((err: any) => {
       console.error(err)

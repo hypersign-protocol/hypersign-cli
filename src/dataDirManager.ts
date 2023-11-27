@@ -75,6 +75,9 @@ export class DataDirManager {
         fs.copyFileSync(oldfilePath, newfilePath)
     }
       
+    static readFileSync(filePath = DataDirManager.DOCKERCOMPOSE_FILE_PATH){
+        return fs.readFileSync(filePath, 'utf8');
+    }
 }
 
 

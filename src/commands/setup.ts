@@ -95,37 +95,43 @@ export default class Setup extends Command {
     }
   }
 
-  async setupConfigurationForSSIAPI(){
-    { 
-      const { flags } = await this.parse(Setup)
-      // SSI API configuration
-      const { default: inquirer } = await import("inquirer")
-      
-      let mnemonicSetup = flags.mnemonicSetup
-      if(!mnemonicSetup) {
-        let response: any = await inquirer.prompt([{
-          name: 'mnemonicSetup',
-          message: Messages.PROMPTS.CHOOSE_MNEMONIC,
-          type: "list",
-          choices: [{name: 'enter' },  {name: 'generate' } ]
-        }])
-        mnemonicSetup = response.mnemonicSetup
-      }
-      if(mnemonicSetup === 'generate') {
-        let mnemonic = await this.generateWallet(24);
-        this.log('  '+mnemonic)
-        this.configParams.ssi.mnemonic  = mnemonic;
-      } else if (mnemonicSetup === 'enter'){
-        this.configParams.ssi.mnemonic = await ux.prompt(Messages.PROMPTS.ENTER_WORDS_MNEMONIC)
-      }
+  async setupMnemonic(secretManager: SecretManager){
+    const { flags } = await this.parse(Setup)
+    // SSI API configuration
+    const { default: inquirer } = await import("inquirer")
+    
+    let mnemonicSetup = flags.mnemonicSetup
+    if(!mnemonicSetup) {
+      let response: any = await inquirer.prompt([{
+        name: 'mnemonicSetup',
+        message: Messages.PROMPTS.CHOOSE_MNEMONIC,
+        type: "list",
+        choices: [{name: 'enter' },  {name: 'generate' } ]
+      }])
+      mnemonicSetup = response.mnemonicSetup
+    }
+    if(mnemonicSetup === 'generate') {
+      let mnemonic = await this.generateWallet(24);
+      this.log('  '+mnemonic)
+      secretManager.setCredentials({ mnemonic })
+      this.configParams.ssi.mnemonic  = mnemonic;
+    } else if (mnemonicSetup === 'enter'){
+      const mnemonicEnteredByUser = await ux.prompt(Messages.PROMPTS.ENTER_WORDS_MNEMONIC)
+      secretManager.setCredentials({ mnemonic: mnemonicEnteredByUser })
+      console.log(`Ented by user ` +  secretManager.getCredentials().mnemonic)
+      this.configParams.ssi.mnemonic = secretManager.getCredentials().mnemonic
+    }
+  }
 
-      
+  async setupConfigurationForSSIAPI(secretManager: SecretManager){
+    { 
       /// we will use this feature in the next version
+      const credentials = secretManager.getCredentials()
       this.configParams.secrets.superAdminUsername = 'root' //await ux.prompt('Enter super admin username')
-      this.configParams.secrets.superAdminPassword = randomUUID() //await ux.prompt('Enter super admin password', {type: 'hide'})
+      this.configParams.secrets.superAdminPassword = credentials.superAdminPassword //await ux.prompt('Enter super admin password', {type: 'hide'})
       
-      this.configParams.secrets.jwtSecret = randomUUID() //flags.jwtSecret ? flags.jwtSecret: dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET;
-      this.configParams.secrets.sessionSecret = randomUUID() //flags.sessionSecret ? flags.sessionSecret: dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY;
+      this.configParams.secrets.jwtSecret = credentials.jwtSecret //flags.jwtSecret ? flags.jwtSecret: dockerComponseTemplate.services['ssi-api'].environment.JWT_SECRET;
+      this.configParams.secrets.sessionSecret = credentials.sessionSecret //flags.sessionSecret ? flags.sessionSecret: dockerComponseTemplate.services['ssi-api'].environment.SESSION_SECRET_KEY;
       
       {
         dockerComponseTemplate.services['entity-api-service'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
@@ -151,12 +157,13 @@ export default class Setup extends Command {
   }
 
 
-  async setupDashboardServiceConfig(){
+  async setupDashboardServiceConfig(secretManager: SecretManager){
     {
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.MNEMONIC = this.configParams.ssi.mnemonic
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SESSION_SECRET_KEY = this.configParams.secrets.sessionSecret
-      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_PASSWORD = this.configParams.secrets.superAdminPassword
+      const credentials = secretManager.getCredentials()
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.JWT_SECRET = credentials.jwtSecret
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.MNEMONIC = credentials.mnemonic
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SESSION_SECRET_KEY = credentials.sessionSecret
+      dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_PASSWORD = credentials.superAdminPassword
       dockerComponseTemplate.services['entity-developer-dashboard-service'].environment.SUPER_ADMIN_USERNAME = this.configParams.secrets.superAdminUsername  
 
       if(!this.configParams.hidNode.isHidNodeSetup){
@@ -171,12 +178,13 @@ export default class Setup extends Command {
     }
   }
 
-  async setupEDVConfig(){
+  async setupEDVConfig(secretManager: SecretManager){
     dockerComponseTemplate.services['edv'].environment.DATA_VAULT = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.EDV_DATA_DIR)  
   }
 
-  async setupStudioDashboardServiceConfig(){
-    dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
+  async setupStudioDashboardServiceConfig(secretManager: SecretManager){
+    const credentials = secretManager.getCredentials()
+    dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.JWT_SECRET = credentials.jwtSecret
     if(!this.configParams.hidNode.isHidNodeSetup){
       dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
       dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
@@ -223,6 +231,9 @@ export default class Setup extends Command {
       } 
     }
 
+    const secretManager = SecretManager.getInstance()
+    await secretManager.init();
+
     const checkingProcessesTasks = new Listr([
       this.getTask(Messages.TASKS.IF_DOCKER_INSTALLED, DependancyCheck.ifProcessInstalled, Messages.SERVICES_NAMES.DOCKER),
       this.getTask(Messages.TASKS.IF_DOCKER_COMPOSE_INSTALLED, DependancyCheck.ifProcessInstalled, Messages.SERVICES_NAMES.DOCKER_COMPOSE),
@@ -230,10 +241,12 @@ export default class Setup extends Command {
     ])
     
     await this.setupConfigurationForHidNode()
-    await this.setupConfigurationForSSIAPI()
-    await this.setupDashboardServiceConfig()
-    await this.setupEDVConfig()
-    await this.setupStudioDashboardServiceConfig()
+    await this.setupMnemonic(secretManager)
+    await this.setupConfigurationForSSIAPI(secretManager)
+    await this.setupDashboardServiceConfig(secretManager)
+    await this.setupEDVConfig(secretManager)
+    await this.setupStudioDashboardServiceConfig(secretManager)
+
     
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
     await fs.writeFileSync(dockerComposeFilePath, dockerCompose)

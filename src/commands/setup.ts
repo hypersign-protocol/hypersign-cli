@@ -233,8 +233,8 @@ export default class Setup extends Command {
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_EDV_CONFIG, DockerCompose.pull, 'edv'))
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_CONFIG, DockerCompose.pull, 'entity-api-service'))
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_PROXY_CONFIG, DockerCompose.pull, 'entity-api-service-proxy'))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_SERVICE_CONFIG, DockerCompose.pull, 'entity-developer-dashboard-service'))
-    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_UI_CONFIG, DockerCompose.build, 'entity-developer-dashboard'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_DEVELOPER_SERVICE_CONFIG, DockerCompose.pull, 'entity-developer-dashboard-service'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_DEVELOPER_UI_CONFIG, DockerCompose.build, 'entity-developer-dashboard'))
 
     { 
       const dockerTasks = new Listr(this.tasks, {concurrent: true})

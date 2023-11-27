@@ -1,4 +1,15 @@
 
+Node: >=18.0.0
+
+## Setup 
+
+```
+yarn 
+yarn build
+``
+
+
+
 
 
 ![img](./docs/hypersign-multi-tenant-ssi-infra.png)

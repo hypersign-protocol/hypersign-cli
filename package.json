@@ -50,15 +50,15 @@
   "oclif": {
     "macos": {
       "identifier": "hypersign.cli",
-      "version": "0.1.0-alpha"
+      "version": "0.2.0-alpha"
     },
     "win": {
       "identifier": "hypersign.cli",
-      "version": "0.1.0-alpha"
+      "version": "0.2.0-alpha"
     },
     "deb": {
       "identifier": "hypersign.cli",
-      "version": "0.1.0-alpha"
+      "version": "0.2.0-alpha"
     },
     "bin": "hypersign-ssi",
     "dirname": "hypersign-ssi",
@@ -92,7 +92,7 @@
     "installer:win": "oclif pack win",
     "installer:deb": "oclif pack deb"
   },
-  "version": "0.1.0-alpha",
+  "version": "0.2.0-alpha",
   "bugs": "https://github.com/hypersign-protocol/hypersign-cli/issues",
   "keywords": [
     "oclif"

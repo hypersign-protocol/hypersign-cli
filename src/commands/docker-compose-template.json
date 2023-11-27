@@ -99,7 +99,7 @@
         "entity-developer-dashboard": {
             "container_name": "entity-developer-dashboard",
             "build": {
-                "context": "./studio-frontend",
+                "context": "./entity-developer-dashboard",
                 "dockerfile": "Dockerfile",
                 "args": [
                     "VUE_APP_TITLE=Entity Developer Dashboard",
@@ -115,6 +115,59 @@
             },
             "ports": [
                 "9001:80"
+            ]
+        },
+        "entity-studio-dashboard-service": {
+            "container_name": "entity-studio-dashboard-service",
+            "image": "ghcr.io/hypersign-protocol/entity-studio-dashboard-service:latest",
+            "ports": [
+                "9000:9000"
+            ],
+            "environment": {
+                "PORT": 9000,
+                "HOST": "localhost",
+                "LOG_FILEPATH": "../log/studio-server.log",
+                "LOG_DIR": "./log",
+                "LOG_TIMESTAMP_FORMAT": "YYYY-MM-DD HH:mm:ss.SSS",
+                "LOG_LEVEL": "debug",
+                "DATABASE_FILEPATH": "../db/studio-server.db",
+                "DID_METHOD_NAME": "hs",
+                "JWT_SECRET": "",
+                "STUDIO_SERVER_BASE_URL": "http://localhost:9000/",
+                "NODE_SERVER_BASE_URL": "http://localhost:5000/",
+                "NODE_SERVER_DID_CREATE_EP": "api/did/create_tmp",
+                "NODE_SERVER_SCHEMA_CREATE_EP": "api/schema/create",
+                "DB_URL": "mongodb://mongo:27017/studio-dashboard-service",
+                "PATH_TO_ISSUE_CRED": "api/v1/credential/walletAccepct",
+                "SSE_CLIENT_URL": "http://localhost:9002",
+                "WHITELISTED_CORS" : "[\"http://localhost:9002\", \"https://wallet-jagrat.hypersign.id\"]",
+                "EMAIL_CREDENTITAL_SCHEMA_ID": "sch:hid:testnet:zufjU7LuQuJNFiUpuhCwYkTrakUu1VmtxE9SPi5TwfUB:1.0",
+                "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
+                "HID_NETWORK_API": "https://api.jagrat.hypersign.id/"
+            },
+            "depends_on": [
+                "mongo"
+            ]
+        },
+        "entity-studio-dashboard": {
+            "container_name": "entity-studio-dashboard",
+            "build": {
+              "context": "./entity-studio-dashboard",
+              "dockerfile": "Dockerfile",
+              "args": [
+                "VUE_APP_TITLE=Entity Studio Dashboard",
+                "VUE_APP_DESC=SSI Playground to learn and understand SSI",
+                "VUE_APP_VERSION=v1.0",
+                "VUE_APP_STUDIO_SERVER_BASE_URL=http://localhost:9000/",
+                "VUE_APP_STUDIO_SERVER_BASE_WS=ws://localhost:9000/",
+                "VUE_APP_NODE_SERVER_BASE_URL=https://rpc.jagrat.hypersign.id/",
+                "VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.jagrat.hypersign.id/",
+                "VUE_APP_EXPLORER_BASE_URL=https://explorer.hypersign.id/",
+                "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id"
+              ]
+            },
+            "ports": [
+              "9002:80"
             ]
         }
     },

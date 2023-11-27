@@ -1,15 +1,25 @@
 export const SERVICES_NAMES = Object.freeze({
     DB_SERVICE: 'Mongo DB Service',
     HID_NETWORK: 'Hypersign ID Network',
+    
     EDV_SERVICE: 'Hypersign Encrypted Data Vault (EDV) Service',
+    
     SSI_API_SERVICE: 'Entity API Service',
     SSI_API_PROXY_SERVICE: 'Entity API Service Proxy',
+    
     DEVELOPER_SERVICE: 'Entity Developer Dashboard Service',
     DEVELOPER_UI: 'Entity Developer Dashboard',
+
+    STUDIO_PLAYGROUND_SERVICE: 'Entity Studio Dashboard Service',
+    STUDIO_PLAYGROUND_UI: 'Entity Studio Dashboard',
+
     APP_NAME: "Hypersign SSI Infrastructure",
+    
     TENANT_URL_API_DASH_FORMAT: 'Tenant URL Swagger API',
+    
     DOCKER: 'docker',
     DOCKER_COMPOSE: 'docker compose',
+    
     WORKDIRNAME: '.hypersign-ssi',
     CLI_NAME: 'hypersign-ssi',
     EDV_DATA_DIR:'edv-data',
@@ -31,6 +41,11 @@ export const TASKS = Object.freeze({
     PULLING_SSI_API_PROXY_CONFIG: `${SERVICES_NAMES.SSI_API_PROXY_SERVICE} Configuration`,
     PULLING_DEVELOPER_SERVICE_CONFIG: `${SERVICES_NAMES.DEVELOPER_SERVICE} Configuration`,
     PULLING_DEVELOPER_UI_CONFIG: `${SERVICES_NAMES.DEVELOPER_UI} Configuration`,
+
+
+    PULLING_STUDIO_SERVICE_CONFIG: `${SERVICES_NAMES.STUDIO_PLAYGROUND_SERVICE} Configuration`,
+    PULLING_STUDIO_UI_CONFIG: `${SERVICES_NAMES.STUDIO_PLAYGROUND_UI} Configuration`,
+
 
     IF_ALL_DEPENDENCIES_INSTALLED: "Verifying the installation status of all dependencies",
     SETTING_SERVIES_CONFIG: `Configuring all service settings`,
@@ -80,6 +95,7 @@ export const LOG = Object.freeze({
     ${SERVICES_NAMES.APP_NAME} is setup and running successfully
         📟 ${SERVICES_NAMES.DEVELOPER_UI} : http://localhost:9001/
         📟 ${SERVICES_NAMES.DEVELOPER_SERVICE} : http://localhost:3002/
+        📟 ${SERVICES_NAMES.STUDIO_PLAYGROUND_UI} : http://localhost:9002/
         📟 ${SERVICES_NAMES.DB_SERVICE} : mongodb://localhost:27017/
         📟 ${SERVICES_NAMES.TENANT_URL_API_DASH_FORMAT} : http://<tenant-subdomain>.localhost:8080/ssi
     `,

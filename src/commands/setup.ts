@@ -175,6 +175,14 @@ export default class Setup extends Command {
     dockerComponseTemplate.services['edv'].environment.DATA_VAULT = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.EDV_DATA_DIR)  
   }
 
+  async setupStudioDashboardServiceConfig(){
+    dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.JWT_SECRET = this.configParams.secrets.jwtSecret
+    if(!this.configParams.hidNode.isHidNodeSetup){
+      dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.HID_NETWORK_API = this.configParams.hidNode.hidNetREST
+      dockerComponseTemplate.services['entity-studio-dashboard-service'].environment.HID_NETWORK_RPC = this.configParams.hidNode.hidNetRPC      
+    }
+  }
+
   getTask(taskTitle: string, task: Function, flag?: any): Task {
     return {
       title: taskTitle,
@@ -225,6 +233,7 @@ export default class Setup extends Command {
     await this.setupConfigurationForSSIAPI()
     await this.setupDashboardServiceConfig()
     await this.setupEDVConfig()
+    await this.setupStudioDashboardServiceConfig()
     
     const dockerCompose = YAMLFormatter.stringify(dockerComponseTemplate)
     await fs.writeFileSync(dockerComposeFilePath, dockerCompose)
@@ -235,6 +244,9 @@ export default class Setup extends Command {
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_SSI_API_PROXY_CONFIG, DockerCompose.pull, 'entity-api-service-proxy'))
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_DEVELOPER_SERVICE_CONFIG, DockerCompose.pull, 'entity-developer-dashboard-service'))
     this.tasks.push(this.getTask(Messages.TASKS.PULLING_DEVELOPER_UI_CONFIG, DockerCompose.build, 'entity-developer-dashboard'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_SERVICE_CONFIG, DockerCompose.pull, 'entity-studio-dashboard-service'))
+    this.tasks.push(this.getTask(Messages.TASKS.PULLING_STUDIO_UI_CONFIG, DockerCompose.build, 'entity-studio-dashboard'))
+
 
     { 
       const dockerTasks = new Listr(this.tasks, {concurrent: true})

@@ -80,7 +80,7 @@
   },
   "repository": "https://github.com/hypersign-protocol/hypersign-cli",
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b && cp -R nginx dist/commands && cp -R studio-frontend dist/commands",
+    "build": "shx rm -rf dist && tsc -b && cp -R nginx dist/commands && cp -R entity-developer-dashboard dist/commands && cp -R entity-studio-dashboard dist/commands",
     "lint": "eslint . --ext .ts",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "yarn lint",

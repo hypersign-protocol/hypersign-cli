@@ -5,12 +5,14 @@ import * as Message from './messages'
 export class DataDirManager {
     static readonly WORKDIR = `${homedir}/${Message.SERVICES_NAMES.WORKDIRNAME}`
     static readonly DOCKERCOMPOSE_FILE_PATH =  path.join(DataDirManager.WORKDIR, 'docker-compose.yml')
-    private static readonly STUDIODIR = `${DataDirManager.WORKDIR}/studio-frontend` 
+    private static readonly DEV_DASHBOARD_DIR = `${DataDirManager.WORKDIR}/entity-developer-dashboard` 
     private static readonly NGINXDIR = `${DataDirManager.WORKDIR}/nginx` 
+    private static readonly STUDIO_DASHBOARD_DIR = `${DataDirManager.WORKDIR}/entity-studio-dashboard` 
 
     static async init(){
         if(!fs.existsSync(DataDirManager.WORKDIR)) fs.mkdirSync(DataDirManager.WORKDIR);
 
+        // API-service
         if(!fs.existsSync(DataDirManager.NGINXDIR)) fs.mkdirSync(DataDirManager.NGINXDIR);
         
         let oldfilePath = path.join(__dirname, 'commands/nginx/nginx.conf')
@@ -18,14 +20,27 @@ export class DataDirManager {
 
         DataDirManager.fileCopy(oldfilePath, newfilePath)
         
-        if(!fs.existsSync(DataDirManager.STUDIODIR)) fs.mkdirSync(DataDirManager.STUDIODIR);
+        // entity-developer-dashboard
+        if(!fs.existsSync(DataDirManager.DEV_DASHBOARD_DIR)) fs.mkdirSync(DataDirManager.DEV_DASHBOARD_DIR);
         
-        oldfilePath = path.join(__dirname, 'commands/studio-frontend/nginx.conf');
-        newfilePath = `${DataDirManager.STUDIODIR}/nginx.conf`
+        oldfilePath = path.join(__dirname, 'commands/entity-developer-dashboard/nginx.conf');
+        newfilePath = `${DataDirManager.DEV_DASHBOARD_DIR}/nginx.conf`
         DataDirManager.fileCopy(oldfilePath, newfilePath)
 
-        oldfilePath = path.join(__dirname,'commands/studio-frontend/Dockerfile');
-        newfilePath = `${DataDirManager.STUDIODIR}/Dockerfile`
+        oldfilePath = path.join(__dirname,'commands/entity-developer-dashboard/Dockerfile');
+        newfilePath = `${DataDirManager.DEV_DASHBOARD_DIR}/Dockerfile`
+        DataDirManager.fileCopy(oldfilePath, newfilePath)
+
+
+        // entity-studio-dashboard
+        if(!fs.existsSync(DataDirManager.STUDIO_DASHBOARD_DIR)) fs.mkdirSync(DataDirManager.STUDIO_DASHBOARD_DIR);
+        
+        oldfilePath = path.join(__dirname, 'commands/entity-studio-dashboard/nginx.conf');
+        newfilePath = `${DataDirManager.STUDIO_DASHBOARD_DIR}/nginx.conf`
+        DataDirManager.fileCopy(oldfilePath, newfilePath)
+
+        oldfilePath = path.join(__dirname,'commands/entity-studio-dashboard/Dockerfile');
+        newfilePath = `${DataDirManager.STUDIO_DASHBOARD_DIR}/Dockerfile`
         DataDirManager.fileCopy(oldfilePath, newfilePath)
     }
 

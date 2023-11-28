@@ -74,7 +74,7 @@
             ],
             "environment": {
                 "PORT": 3002,
-                "DATABASE_CONNECTION_PATH": "mongodb://mongo:27017/api?retryWrites=true&w=majority",
+                "DATABASE_CONNECTION_PATH": "mongodb://mongo:27017/entity-developer-dashboard?retryWrites=true&w=majority",
                 "DEVELOPER_DASHBOARD_SERVICE_PUBLIC_EP": "http://localhost:3002",
                 "EMAIL_CREDENTITAL_SCHEMA_ID":"sch:hid:testnet:zufjU7LuQuJNFiUpuhCwYkTrakUu1VmtxE9SPi5TwfUB:1.0",
                 "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
@@ -138,7 +138,7 @@
                 "NODE_SERVER_BASE_URL": "http://localhost:5000/",
                 "NODE_SERVER_DID_CREATE_EP": "api/did/create_tmp",
                 "NODE_SERVER_SCHEMA_CREATE_EP": "api/schema/create",
-                "DB_URL": "mongodb://mongo:27017/studio-dashboard-service",
+                "DB_URL": "mongodb://mongo:27017/entity-studio-dashboard",
                 "PATH_TO_ISSUE_CRED": "api/v1/credential/walletAccepct",
                 "SSE_CLIENT_URL": "http://localhost:9002",
                 "WHITELISTED_CORS" : "[\"http://localhost:9002\", \"https://wallet-jagrat.hypersign.id\"]",
@@ -163,7 +163,7 @@
                 "VUE_APP_STUDIO_SERVER_BASE_WS=ws://localhost:9000/",
                 "VUE_APP_NODE_SERVER_BASE_URL=https://rpc.jagrat.hypersign.id/",
                 "VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.jagrat.hypersign.id/",
-                "VUE_APP_EXPLORER_BASE_URL=https://explorer.hypersign.id/",
+                "VUE_APP_EXPLORER_BASE_URL=https://explorer.hypersign.id/hypersign-testnet/",
                 "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id"
               ]
             },

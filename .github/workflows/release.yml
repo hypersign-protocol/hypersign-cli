@@ -16,6 +16,7 @@ jobs:
     strategy:
         matrix:
             os: [ubuntu-latest, macos-latest]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -26,20 +27,19 @@ jobs:
         with:
             node-version: 18
 
-      - name: Install packages
-        run: yarn install --network-concurrency 1
+      - name: Install OClif
+        run: yarn global add oclif
     
       - name: Build Executable (Ubuntu)
-        run: npm run installer:deb
+        run: oclif pack deb
         if: matrix.os == 'ubuntu-latest'
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Executable (MacOS)
-        run: npm run installer:macos
+        run: oclif pack macos
         if: matrix.os == 'macos-latest'
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if binaries are present in dist dir
+        run: ls ./dist
 
       - name: Release
         uses: softprops/action-gh-release@v1

@@ -32,10 +32,14 @@ jobs:
       - name: Build Executable (Ubuntu)
         run: npm run installer:deb
         if: matrix.os == 'ubuntu-latest'
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Executable (MacOS)
         run: npm run installer:macos
         if: matrix.os == 'macos-latest'
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -43,6 +47,6 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            ./dist/*.deb
-            ./dist/*.pkg
+            ./dist/**.deb
+            ./dist/**.pkg
 

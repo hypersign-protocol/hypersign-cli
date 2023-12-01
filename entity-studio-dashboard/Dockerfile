@@ -1,7 +1,7 @@
 FROM node:14 as build-stage
 
 RUN apt-get update && apt-get install -y git
-RUN git clone https://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@github.com/hypersign-protocol/entity-studio-dashboard.git /app
+RUN git clone https://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@github.com/hypersign-protocol/entity-studio-dashboard.git /app
 
 WORKDIR /app
 

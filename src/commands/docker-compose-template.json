@@ -14,7 +14,7 @@
         },
         "edv": {
             "container_name": "edv",
-            "image": "ghcr.io/hypersign-protocol/hypersign-data-vault-service:latest",
+            "image": "ghcr.io/hypersign-protocol/hypersign-data-vault-service:3.0.0",
             "environment": {
                 "PORT": 3000,
                 "HOST": "edv:3000",
@@ -28,13 +28,13 @@
         },
         "entity-api-service": {
             "container_name": "entity-api-service",
-            "image": "ghcr.io/hypersign-protocol/entity-api-service:latest",
+            "image": "ghcr.io/hypersign-protocol/entity-api-service:2.2.7",
             "environment": {
                 "PORT": 3001,
                 "ENTITY_API_SERVICE_BASE_URL": "http://localhost:8080/",
                 "BASE_DB_PATH": "mongodb://mongo:27017",
-                "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
-                "HID_NETWORK_API": "https://api.jagrat.hypersign.id/",
+                "HID_NETWORK_RPC": "https://rpc.prajna.hypersign.id/",
+                "HID_NETWORK_API": "https://api.prajna.hypersign.id/",
                 "HID_NETWORK_NAMESPACE": "testnet",
                 "EDV_BASE_URL": "http://edv:3000/",
                 "EDV_CONFIG_DIR": ".api-edv-config",
@@ -68,7 +68,7 @@
         },
         "entity-developer-dashboard-service": {
             "container_name": "entity-developer-dashboard-service",
-            "image": "ghcr.io/hypersign-protocol/entity-developer-dashboard-service:latest",
+            "image": "ghcr.io/hypersign-protocol/entity-developer-dashboard-service:0.0.4",
             "ports": [
                 "3002:3002"
             ],
@@ -76,14 +76,14 @@
                 "PORT": 3002,
                 "DATABASE_CONNECTION_PATH": "mongodb://mongo:27017/entity-developer-dashboard?retryWrites=true&w=majority",
                 "DEVELOPER_DASHBOARD_SERVICE_PUBLIC_EP": "http://localhost:3002",
-                "EMAIL_CREDENTITAL_SCHEMA_ID":"sch:hid:testnet:zufjU7LuQuJNFiUpuhCwYkTrakUu1VmtxE9SPi5TwfUB:1.0",
-                "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
-                "HID_NETWORK_API": "https://api.jagrat.hypersign.id/",
+                "EMAIL_CREDENTITAL_SCHEMA_ID":"sch:hid:testnet:z6MkoTFHzx3XPXAvAVAN9CWMh91vH53m4kTFiVPypC22c7fB:1.0",
+                "HID_NETWORK_RPC": "https://rpc.prajna.hypersign.id/",
+                "HID_NETWORK_API": "https://api.prajna.hypersign.id/",
                 "HID_NETWORK_NAMESPACE": "testnet",
                 "EDV_BASE_URL": "http://edv:3000/",
                 "EDV_CONFIG_DIR": ".api-edv-config",
                 "MNEMONIC": "parade erase firm goose old elegant sausage sweet stuff view goddess total museum hidden worry usual rug foster uncover cradle govern swing muscle unable",
-                "WHITELISTED_CORS": "[\"http://localhost:9001\", \"https://wallet-jagrat.hypersign.id\"]",
+                "WHITELISTED_CORS": "[\"http://localhost:9001\", \"https://wallet-prajna.hypersign.id\"]",
                 "JWT_SECRET": "",
                 "VAULT_PREFIX": "hs:studio-api:",
                 "SUPER_ADMIN_USERNAME": "",
@@ -107,10 +107,10 @@
                     "VUE_APP_VERSION=v1.0",
                     "VUE_APP_STUDIO_SERVER_BASE_URL=http://localhost:3002/",
                     "VUE_APP_STUDIO_SERVER_BASE_WS=ws://localhost:3002/",
-                    "VUE_APP_NODE_SERVER_BASE_URL=https://rpc.jagrat.hypersign.id/",
-                    "VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.jagrat.hypersign.id/",
+                    "VUE_APP_NODE_SERVER_BASE_URL=https://rpc.prajna.hypersign.id/",
+                    "VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.prajna.hypersign.id/",
                     "VUE_APP_EXPLORER_BASE_URL=https://explorer.hypersign.id/",
-                    "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id"
+                    "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-prajna.hypersign.id"
                 ]
             },
             "image": "hypersign-protocol/entity-developer-dashboard:latest",
@@ -120,7 +120,7 @@
         },
         "entity-studio-dashboard-service": {
             "container_name": "entity-studio-dashboard-service",
-            "image": "ghcr.io/hypersign-protocol/entity-studio-dashboard-service:latest",
+            "image": "ghcr.io/hypersign-protocol/entity-studio-dashboard-service:1.1.3",
             "ports": [
                 "9000:9000"
             ],
@@ -141,10 +141,10 @@
                 "DB_URL": "mongodb://mongo:27017/entity-studio-dashboard",
                 "PATH_TO_ISSUE_CRED": "api/v1/credential/walletAccepct",
                 "SSE_CLIENT_URL": "http://localhost:9002",
-                "WHITELISTED_CORS" : "[\"http://localhost:9002\", \"https://wallet-jagrat.hypersign.id\"]",
-                "EMAIL_CREDENTITAL_SCHEMA_ID": "sch:hid:testnet:zufjU7LuQuJNFiUpuhCwYkTrakUu1VmtxE9SPi5TwfUB:1.0",
-                "HID_NETWORK_RPC": "https://rpc.jagrat.hypersign.id/",
-                "HID_NETWORK_API": "https://api.jagrat.hypersign.id/"
+                "WHITELISTED_CORS" : "[\"http://localhost:9002\", \"https://wallet-prajna.hypersign.id\"]",
+                "EMAIL_CREDENTITAL_SCHEMA_ID": "sch:hid:testnet:z6MkoTFHzx3XPXAvAVAN9CWMh91vH53m4kTFiVPypC22c7fB:1.0",
+                "HID_NETWORK_RPC": "https://rpc.prajna.hypersign.id/",
+                "HID_NETWORK_API": "https://api.prajna.hypersign.id/"
             },
             "depends_on": [
                 "mongo"
@@ -161,10 +161,10 @@
                 "VUE_APP_VERSION=v1.0",
                 "VUE_APP_STUDIO_SERVER_BASE_URL=http://localhost:9000/",
                 "VUE_APP_STUDIO_SERVER_BASE_WS=ws://localhost:9000/",
-                "VUE_APP_NODE_SERVER_BASE_URL=https://rpc.jagrat.hypersign.id/",
-                "VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.jagrat.hypersign.id/",
+                "VUE_APP_NODE_SERVER_BASE_URL=https://rpc.prajna.hypersign.id/",
+                "VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.prajna.hypersign.id/",
                 "VUE_APP_EXPLORER_BASE_URL=https://explorer.hypersign.id/hypersign-testnet/",
-                "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id"
+                "VUE_APP_WEB_WALLET_ADDRESS=https://wallet-prajna.hypersign.id"
               ]
             },
             "image": "hypersign-protocol/entity-studio-dashboard:latest",

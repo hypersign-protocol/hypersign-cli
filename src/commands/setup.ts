@@ -84,8 +84,8 @@ export default class Setup extends Command {
       }
 
       if(networks == 'testnet'){
-        this.configParams.hidNode.hidNetRPC = 'https://rpc.jagrat.hypersign.id/' //await ux.prompt(`[${networks}] Enter Hypersign Node RPC Endpoint`)
-        this.configParams.hidNode.hidNetREST = 'https://api.jagrat.hypersign.id/' //await ux.prompt(`[${networks}] Enter Hypersign Node REST Endpoint`)
+        this.configParams.hidNode.hidNetRPC = 'https://rpc.prajna.hypersign.id/' //await ux.prompt(`[${networks}] Enter Hypersign Node RPC Endpoint`)
+        this.configParams.hidNode.hidNetREST = 'https://api.prajna.hypersign.id/' //await ux.prompt(`[${networks}] Enter Hypersign Node REST Endpoint`)
         this.configParams.hidNode.isHidNodeSetup = false
       } else if (networks === 'mainnet'){
         throw new Error(Messages.ERRORS.NETWORK_NOT_SUPPOERTED)
@@ -160,7 +160,7 @@ export default class Setup extends Command {
 
 
   async setupDashboardServiceConfig(secretManager: SecretManager){
-    {
+    {      
       const credentials = secretManager.getCredentials()
       dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.JWT_SECRET = credentials.jwtSecret
       dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.MNEMONIC = credentials.mnemonic
@@ -177,7 +177,7 @@ export default class Setup extends Command {
         dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.EDV_BASE_URL = this.configParams.edv.edvUrl
       }
       dockerComponseTemplate.services[Messages.SERVICES_NAMES.DEVELOPER_SERVICE.monikar].environment.EDV_CONFIG_DIR = path.join(Messages.SERVICES_NAMES.WORKDIRNAME, Messages.SERVICES_NAMES.DASHBOARD_SERVICE_EDV_CONFIG_DIR)  
-    }
+    }    
   }
 
   async setupEDVConfig(secretManager: SecretManager){

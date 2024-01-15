@@ -28,7 +28,7 @@
         },
         "entity-api-service": {
             "container_name": "entity-api-service",
-            "image": "ghcr.io/hypersign-protocol/entity-api-service:2.2.7",
+            "image": "ghcr.io/hypersign-protocol/entity-api-service:2.3.0",
             "environment": {
                 "PORT": 3001,
                 "ENTITY_API_SERVICE_BASE_URL": "http://localhost:8080/",
